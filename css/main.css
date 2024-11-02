@@ -1,0 +1,119 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+body {
+  color: beige;
+  font-family: "Kanit", sans-serif;
+  font-style: normal;
+}
+
+p {
+  font-weight: 300;
+}
+
+h1 {
+  font-weight: 700;
+  font-size: 64px;
+}
+
+h2 {
+  font-weight: 600;
+}
+
+h3 {
+  font-weight: 500;
+}
+
+a {
+  color: beige;
+  text-decoration: none;
+}
+
+.btn-green {
+  background-color: rgb(3, 201, 136);
+  color: beige;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 1rem;
+  border-radius: 30px;
+  border-width: 0;
+  width: 197px;
+  height: 53px;
+}
+
+.btn-blue {
+  background-color: rgb(28, 130, 173);
+  color: beige;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 1rem;
+  border-radius: 30px;
+  border-width: 0;
+  width: 197px;
+  height: 53px;
+}
+
+#home {
+  display: grid;
+  grid-template-areas: "h1 h1 h1" "btn btn btn" "name how contact" "name how contact";
+  gap: 2rem;
+}
+#home h1 {
+  grid-area: h1;
+  justify-self: center;
+}
+#home .buttons {
+  grid-area: btn;
+  justify-self: center;
+}
+#home .buttons button {
+  margin: 2rem;
+}
+#home .bubble-how {
+  grid-area: how;
+  background: radial-gradient(rgb(28, 130, 173), rgb(3, 201, 136));
+  border-radius: 50%;
+  width: 340px;
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#home .bubble-how p {
+  width: 80%;
+}
+#home .bubble-name {
+  grid-area: name;
+  background-color: rgba(28, 130, 173, 0.6);
+  border-radius: 59% 41% 45% 55%/48% 10% 90% 52%;
+  width: 300px;
+  height: 300px;
+  margin: 1.5rem;
+  transition: border-radius 500ms ease-in-out;
+  display: flex;
+  align-items: center;
+}
+#home .bubble-name h2 {
+  font-size: 25px;
+  padding-left: 1.5rem;
+}
+#home .bubble-name:hover {
+  border-radius: 19% 81% 18% 82%/24% 61% 39% 76%;
+}
+#home .bubble-contact {
+  grid-area: contact;
+  background-color: rgba(28, 130, 173, 0.8);
+  border-radius: 80% 20% 49% 51%/63% 56% 44% 37%;
+  width: 250px;
+  height: 250px;
+  transition: border-radius 500ms ease-in-out;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+#home .bubble-contact h3 {
+  width: 80%;
+  font-weight: 700;
+  font-size: 25px;
+}
+#home .bubble-contact:hover {
+  border-radius: 71% 29% 45% 55%/72% 27% 73% 28%;
+}/*# sourceMappingURL=main.css.map */

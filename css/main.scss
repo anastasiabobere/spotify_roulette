@@ -27,6 +27,12 @@ a {
   color: beige;
   text-decoration: none;
 }
+button {
+  cursor: pointer;
+}
+button:hover {
+  text-decoration: underline;
+}
 .btn-green {
   background-color: $green-color;
   color: beige;
@@ -120,5 +126,72 @@ a {
   }
   .bubble-contact:hover {
     border-radius: 71% 29% 45% 55% / 72% 27% 73% 28%;
+  }
+}
+#room {
+  #head {
+    display: flex;
+    margin: 2rem;
+    align-items: center;
+    justify-content: center;
+    gap: 4rem;
+    .bubble-id {
+      background-color: rgba(28, 130, 173, 0.6);
+      border-radius: 45% 55% 54% 46% / 52% 65% 35% 48%;
+      width: 300px;
+      height: 300px;
+      margin: 1.5rem;
+      transition: border-radius 500ms ease-in-out;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      h2 {
+        font-size: 25px;
+      }
+    }
+    .bubble-id:hover {
+      border-radius: 74% 26% 54% 46% / 44% 42% 58% 56%;
+    }
+  }
+}
+.players {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 2rem;
+  margin: 1.5rem;
+  .player {
+    background-color: $blue-color;
+    border-radius: 30px;
+    text-align: center;
+    h3 {
+      font-weight: 400;
+      font-size: 30px;
+    }
+  }
+}
+#game {
+  .player {
+    cursor: pointer;
+  }
+  .songs {
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    display: flex;
+  }
+  #song {
+    background-color: $blue-color;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 500px;
+    height: 500px;
+    border-radius: 30px;
+    img {
+      width: 250px;
+      height: 250px;
+    }
   }
 }

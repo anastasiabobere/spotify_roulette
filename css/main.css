@@ -3,6 +3,7 @@ body {
   color: beige;
   font-family: "Kanit", sans-serif;
   font-style: normal;
+  height: 100vh;
 }
 
 p {
@@ -59,6 +60,61 @@ button:hover {
   height: 53px;
 }
 
+.bubble-how {
+  grid-area: how;
+  background: radial-gradient(rgb(28, 130, 173), rgb(3, 201, 136));
+  border-radius: 50%;
+  width: 340px;
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.bubble-how p {
+  width: 80%;
+}
+
+.bubble-name {
+  grid-area: name;
+  background-color: rgba(28, 130, 173, 0.6);
+  border-radius: 59% 41% 45% 55%/48% 10% 90% 52%;
+  width: 300px;
+  height: 300px;
+  margin: 1.5rem;
+  transition: border-radius 500ms ease-in-out;
+  display: flex;
+  align-items: center;
+}
+.bubble-name h2 {
+  font-size: 25px;
+  padding-left: 1.5rem;
+}
+
+.bubble-name:hover {
+  border-radius: 19% 81% 18% 82%/24% 61% 39% 76%;
+}
+
+.bubble-contact {
+  grid-area: contact;
+  background-color: rgba(28, 130, 173, 0.8);
+  border-radius: 80% 20% 49% 51%/63% 56% 44% 37%;
+  width: 250px;
+  height: 250px;
+  transition: border-radius 500ms ease-in-out;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+.bubble-contact h3 {
+  width: 80%;
+  font-weight: 700;
+  font-size: 25px;
+}
+
+.bubble-contact:hover {
+  border-radius: 71% 29% 45% 55%/72% 27% 73% 28%;
+}
+
 #home {
   display: grid;
   grid-template-areas: "h1 h1 h1" "btn btn btn" "name how contact" "name how contact";
@@ -74,56 +130,6 @@ button:hover {
 }
 #home .buttons button {
   margin: 2rem;
-}
-#home .bubble-how {
-  grid-area: how;
-  background: radial-gradient(rgb(28, 130, 173), rgb(3, 201, 136));
-  border-radius: 50%;
-  width: 340px;
-  height: 340px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-#home .bubble-how p {
-  width: 80%;
-}
-#home .bubble-name {
-  grid-area: name;
-  background-color: rgba(28, 130, 173, 0.6);
-  border-radius: 59% 41% 45% 55%/48% 10% 90% 52%;
-  width: 300px;
-  height: 300px;
-  margin: 1.5rem;
-  transition: border-radius 500ms ease-in-out;
-  display: flex;
-  align-items: center;
-}
-#home .bubble-name h2 {
-  font-size: 25px;
-  padding-left: 1.5rem;
-}
-#home .bubble-name:hover {
-  border-radius: 19% 81% 18% 82%/24% 61% 39% 76%;
-}
-#home .bubble-contact {
-  grid-area: contact;
-  background-color: rgba(28, 130, 173, 0.8);
-  border-radius: 80% 20% 49% 51%/63% 56% 44% 37%;
-  width: 250px;
-  height: 250px;
-  transition: border-radius 500ms ease-in-out;
-  display: flex;
-  align-items: center;
-  text-align: center;
-}
-#home .bubble-contact h3 {
-  width: 80%;
-  font-weight: 700;
-  font-size: 25px;
-}
-#home .bubble-contact:hover {
-  border-radius: 71% 29% 45% 55%/72% 27% 73% 28%;
 }
 
 #room #head {
@@ -161,6 +167,7 @@ button:hover {
   background-color: rgb(28, 130, 173);
   border-radius: 30px;
   text-align: center;
+  cursor: pointer;
 }
 .players .player h3 {
   font-weight: 400;
@@ -189,4 +196,38 @@ button:hover {
 #game #song img {
   width: 250px;
   height: 250px;
+}
+
+#end {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+#end h2 {
+  font-size: 40px;
+}
+#end .players {
+  grid-template-columns: repeat(1, 1fr);
+  justify-items: center;
+}
+#end .players .player {
+  width: 50%;
+}
+#end .bubbles {
+  display: flex;
+  justify-content: space-evenly;
+}
+#end .bubbles a {
+  font-size: 30px;
+  font-weight: 500;
+  padding-left: 2rem;
+}
+
+@media screen and (max-width: 800px) {
+  #home,
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }/*# sourceMappingURL=main.css.map */

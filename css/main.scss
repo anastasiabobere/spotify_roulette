@@ -1,14 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 $green-color: rgba(3, 201, 136, 1);
 $blue-color: rgba(28, 130, 173, 1);
-// * {
-//   padding: 0;
-//   margin: 0;
-// }
 body {
   color: beige;
   font-family: "Kanit", sans-serif;
   font-style: normal;
+  height: 100vh;
 }
 p {
   font-weight: 300;
@@ -55,7 +52,58 @@ button:hover {
   width: 197px;
   height: 53px;
 }
+.bubble-how {
+  grid-area: how;
+  background: radial-gradient($blue-color, $green-color);
+  border-radius: 50%;
+  width: 340px;
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  p {
+    width: 80%;
+  }
+}
+.bubble-name {
+  grid-area: name;
+  background-color: rgba(28, 130, 173, 0.6);
+  border-radius: 59% 41% 45% 55% / 48% 10% 90% 52%;
+  width: 300px;
+  height: 300px;
+  margin: 1.5rem;
+  transition: border-radius 500ms ease-in-out;
+  display: flex;
+  align-items: center;
+  h2 {
+    font-size: 25px;
+    padding-left: 1.5rem;
+  }
+}
+.bubble-name:hover {
+  border-radius: 19% 81% 18% 82% / 24% 61% 39% 76%;
+}
+.bubble-contact {
+  grid-area: contact;
+  background-color: rgba($color: $blue-color, $alpha: 0.8);
+  border-radius: 80% 20% 49% 51% / 63% 56% 44% 37%;
+  width: 250px;
+  height: 250px;
+  transition: border-radius 500ms ease-in-out;
+  display: flex;
+  align-items: center;
 
+  text-align: center;
+
+  h3 {
+    width: 80%;
+    font-weight: 700;
+    font-size: 25px;
+  }
+}
+.bubble-contact:hover {
+  border-radius: 71% 29% 45% 55% / 72% 27% 73% 28%;
+}
 #home {
   display: grid;
   grid-template-areas:
@@ -73,59 +121,6 @@ button:hover {
     button {
       margin: 2rem;
     }
-  }
-  .bubble-how {
-    grid-area: how;
-    background: radial-gradient($blue-color, $green-color);
-    border-radius: 50%;
-    width: 340px;
-    height: 340px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    p {
-      width: 80%;
-    }
-  }
-
-  .bubble-name {
-    grid-area: name;
-    background-color: rgba(28, 130, 173, 0.6);
-    border-radius: 59% 41% 45% 55% / 48% 10% 90% 52%;
-    width: 300px;
-    height: 300px;
-    margin: 1.5rem;
-    transition: border-radius 500ms ease-in-out;
-    display: flex;
-    align-items: center;
-    h2 {
-      font-size: 25px;
-      padding-left: 1.5rem;
-    }
-  }
-  .bubble-name:hover {
-    border-radius: 19% 81% 18% 82% / 24% 61% 39% 76%;
-  }
-  .bubble-contact {
-    grid-area: contact;
-    background-color: rgba($color: $blue-color, $alpha: 0.8);
-    border-radius: 80% 20% 49% 51% / 63% 56% 44% 37%;
-    width: 250px;
-    height: 250px;
-    transition: border-radius 500ms ease-in-out;
-    display: flex;
-    align-items: center;
-
-    text-align: center;
-
-    h3 {
-      width: 80%;
-      font-weight: 700;
-      font-size: 25px;
-    }
-  }
-  .bubble-contact:hover {
-    border-radius: 71% 29% 45% 55% / 72% 27% 73% 28%;
   }
 }
 #room {
@@ -163,6 +158,7 @@ button:hover {
     background-color: $blue-color;
     border-radius: 30px;
     text-align: center;
+    cursor: pointer;
     h3 {
       font-weight: 400;
       font-size: 30px;
@@ -193,5 +189,37 @@ button:hover {
       width: 250px;
       height: 250px;
     }
+  }
+}
+#end {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  h2 {
+    font-size: 40px;
+  }
+  .players {
+    grid-template-columns: repeat(1, 1fr);
+    justify-items: center;
+    .player {
+      width: 50%;
+    }
+  }
+  .bubbles {
+    display: flex;
+    justify-content: space-evenly;
+    a {
+      font-size: 30px;
+      font-weight: 500;
+      padding-left: 2rem;
+    }
+  }
+}
+@media screen and (max-width: 800px) {
+  #home,
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }

@@ -174,9 +174,6 @@ button:hover {
   font-size: 30px;
 }
 
-#game .player {
-  cursor: pointer;
-}
 #game .songs {
   align-items: center;
   justify-content: center;
@@ -224,9 +221,43 @@ button:hover {
 }
 
 @media screen and (max-width: 800px) {
+  .background {
+    height: 100vh;
+  }
+  .players {
+    grid-template-columns: repeat(1, 1fr);
+  }
   #home,
   .buttons {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #room #head {
+    flex-direction: column;
+  }
+  #room #head .bubble-id {
+    width: 200px;
+    height: 200px;
+    margin: 1rem;
+  }
+  #room #head .bubble-id h2 {
+    font-size: 15px;
+  }
+  #game #song {
+    width: 300px;
+    height: 300px;
+  }
+  #game #song img {
+    width: 150px;
+    height: 150px;
+  }
+  #game #song h2,
+  #game #song h3 {
+    margin: 0;
+    padding: 0;
+  }
+  #end .bubbles {
     flex-direction: column;
     align-items: center;
   }

@@ -1,0 +1,26 @@
+{
+  "name": "spotify_roulette",
+  "version": "1.0.0",
+  "description": "spotify roulette",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "yes"
+  },
+  "keywords": [
+    "spotify"
+  ],
+  "author": "Anastasia Bobere",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "expess": "^0.0.1-security",
+    "express": "^4.21.1",
+    "node-fetch": "^3.3.2",
+    "query-string": "^9.1.1"
+  }
+}

@@ -1,6 +1,7 @@
 {
   "name": "spotify_roulette",
   "version": "1.0.0",
+  "type": "module",
   "description": "spotify roulette",
   "main": "index.js",
   "scripts": {
@@ -18,6 +19,7 @@
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "expess": "^0.0.1-security",
     "express": "^4.21.1",
     "node-fetch": "^3.3.2",

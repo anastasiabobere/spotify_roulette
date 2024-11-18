@@ -79,62 +79,75 @@
       <span></span>
       <span></span>
     </div>
-    <div id="login">
-      <h1>Learning Authorization Flow Spotify</h1>
-      <a href="/login">Log in with Spotify</a>
-    </div>
-    <div id="logged-in">
-      <h1>Logged in with Authorization Flow!</h1>
-      <button id="refresh-token">Get a New Token!</button>
-    </div>
-    <script src="js/auth.js"></script>
-    <script src="index.js"></script>
+    <button onclick="window.location.href='/login';">Login to Spotify</button>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script src="js/script.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     <script>
-      function getHashParams() {
-        let hashParams = {};
-        let e,
-          r = /([^&;=]+)=?([^&;]*)/g, // really weird looking way to include all characters
-          q = window.location.hash.substring(1);
-        while ((e = r.exec(q))) {
-          hashParams[e[1]] = decodeURIComponent(e[2]);
+      // function getHashParams() {
+      //   let hashParams = {};
+      //   let e,
+      //     r = /([^&;=]+)=?([^&;]*)/g, // really weird looking way to include all characters
+      //     q = window.location.hash.substring(1);
+      //   while ((e = r.exec(q))) {
+      //     hashParams[e[1]] = decodeURIComponent(e[2]);
+      //   }
+      //   return hashParams;
+      // }
+
+      // let params = getHashParams();
+
+      // let access_token = params.access_token;
+      // let refresh_token = params.refresh_token;
+      // let error = params.error;
+
+      // if (error) {
+      //   alert("There was an error during the authentication");
+      // } else {
+      //   if (access_token) {
+      //     $("#login").hide(); // change to login screen by hiding matching divs
+      //     $("#logged-in").show(); // but only if the login was successful
+      //   } else {
+      //     $("#login").show();
+      //     $("#logged-in").hide();
+      //   }
+      // }
+
+      // document.getElementById("refresh-token").addEventListener(
+      //   "click",
+      //   function () {
+      //     $.ajax({
+      //       url: "/refresh_token", // there are better ways to implement a refresh than this - but this is how you'd do it
+      //       data: {
+      //         "refresh_token": refresh_token,
+      //       },
+      //     }).done(function (data) {
+      //       access_token = data.access_token;
+      //       console.log(`new access token: ${access_token}`);
+      //     });
+      //   },
+      //   false,
+      // );
+      window.onload = () => {
+        const hash = window.location.hash;
+        if (hash) {
+          const params = new URLSearchParams(hash.substring(1));
+          const accessToken = params.get("access_token");
+          const refreshToken = params.get("refresh_token");
+          const error = params.get("error");
+
+          if (accessToken) {
+            console.log("Access Token:", accessToken);
+            console.log("Refresh Token:", refreshToken);
+            // Store the tokens (e.g., in local storage) and use them to make API calls
+          } else if (error) {
+            console.error("Spotify Error:", error);
+          }
+
+          // Remove the hash from the URL
+          window.location.hash = "";
         }
-        return hashParams;
-      }
-
-      let params = getHashParams();
-
-      let access_token = params.access_token;
-      let refresh_token = params.refresh_token;
-      let error = params.error;
-
-      if (error) {
-        alert("There was an error during the authentication");
-      } else {
-        if (access_token) {
-          $("#login").hide(); // change to login screen by hiding matching divs
-          $("#logged-in").show(); // but only if the login was successful
-        } else {
-          $("#login").show();
-          $("#logged-in").hide();
-        }
-      }
-
-      document.getElementById("refresh-token").addEventListener(
-        "click",
-        function () {
-          $.ajax({
-            url: "/refresh_token", // there are better ways to implement a refresh than this - but this is how you'd do it
-            data: {
-              "refresh_token": refresh_token,
-            },
-          }).done(function (data) {
-            access_token = data.access_token;
-            console.log(`new access token: ${access_token}`);
-          });
-        },
-        false,
-      );
+      };
     </script>
   </body>
 </html>

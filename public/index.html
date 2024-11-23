@@ -20,7 +20,10 @@
       <div class="buttons">
         <button class="btn-blue" onclick="joinRoom()">Join Room</button>
         <button class="btn-green" onclick="createRoom()">Create Room</button>
-        <button id="login" class="btn-blue">
+        <button
+          id="login"
+          class="btn-blue"
+          onclick="window.location.href='/login';">
           <a href="/login">Login with Spotify</a>
         </button>
       </div>
@@ -79,9 +82,9 @@
       <span></span>
       <span></span>
     </div>
-    <button onclick="window.location.href='/login';">Login to Spotify</button>
+
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/rooms.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     <script>
       // function getHashParams() {

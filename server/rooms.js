@@ -1,4 +1,4 @@
-import db from "./db.js"; // Import database connection
+import db from "./db.js";
 
 const generateRandomRoomNumber = () => {
   const length = 4;
@@ -39,8 +39,8 @@ const createRoom = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    console.error("Database Error:", error.message); // Log the error message
-    console.error("Error Details:", error); // Log the full error object for debugging
+    console.error("Database Error:", error.message);
+    console.error("Error Details:", error);
 
     res.status(500).json({ success: false, message: "Error creating room." });
   }

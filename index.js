@@ -12,7 +12,7 @@ dotenv.config();
 
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const redirect_uri = "http://127.0.0.1:5500/index.html"; // Verify this matches your Spotify app settings EXACTLY
+const redirect_uri = "http://127.0.0.1:5500/index.html";
 const stateKey = "spotify_auth_state";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -120,7 +120,7 @@ app.get("/refresh_token", async (req, res) => {
     if (!response.ok) {
       const errorData = await response
         .json()
-        .catch(() => ({ message: "Unknown error from Spotify API" })); // More specific error message
+        .catch(() => ({ message: "Unknown error from Spotify API" }));
       throw new Error(
         `Refresh token request failed: ${response.status} - ${JSON.stringify(
           errorData,
@@ -130,10 +130,10 @@ app.get("/refresh_token", async (req, res) => {
 
     const data = await response.json();
     const access_token = data.access_token;
-    res.json({ access_token }); // Send JSON response
+    res.json({ access_token });
   } catch (error) {
     console.error("Error refreshing token:", error);
-    res.status(500).send({ error: error.message }); // Use send for flexibility, if needed
+    res.status(500).send({ error: error.message });
   }
 });
 app.post("/create-room", createRoom);

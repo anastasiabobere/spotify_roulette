@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import fetch from "node-fetch";
 import cors from "cors";
 import path from "path";
+import { createRoom } from "./server/rooms.js";
 import { fileURLToPath } from "url";
 
 dotenv.config();
@@ -135,7 +136,7 @@ app.get("/refresh_token", async (req, res) => {
     res.status(500).send({ error: error.message }); // Use send for flexibility, if needed
   }
 });
-
+app.post("/create-room", createRoom);
 const port = 5500;
 app.listen(port, () => {
   console.log(`Listening on ${port}`);

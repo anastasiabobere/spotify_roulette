@@ -24,6 +24,7 @@
     "dotenv": "^16.4.5",
     "expess": "^0.0.1-security",
     "express": "^4.21.1",
+    "mysql2": "^3.11.4",
     "node-fetch": "^3.3.2",
     "query-string": "^9.1.1"
   },

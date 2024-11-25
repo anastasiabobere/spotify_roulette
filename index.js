@@ -5,7 +5,8 @@ import cookieParser from "cookie-parser";
 import fetch from "node-fetch";
 import cors from "cors";
 import path from "path";
-import { createRoom } from "./server/rooms.js";
+import { createRoom } from "./server/createRoom.js";
+import { joinRoom } from "./server/joinRoom.js";
 import { fileURLToPath } from "url";
 
 dotenv.config();
@@ -136,9 +137,11 @@ app.get("/refresh_token", async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
+app.use(express.urlencoded({ extended: true }));
 app.post("/create-room", createRoom);
+app.post("/join-room", joinRoom);
 const port = 5500;
+
 app.listen(port, () => {
   console.log(`Listening on ${port}`);
 });
-console.log("Hello100");

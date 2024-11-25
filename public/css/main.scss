@@ -118,10 +118,21 @@ button:hover {
   .buttons {
     grid-area: btn;
     justify-self: center;
+
     button {
       margin: 2rem;
     }
+
+    input {
+      width: 100px;
+    }
+    input:focus {
+      outline: none;
+    }
   }
+}
+.hidden {
+  opacity: 0;
 }
 #room {
   #head {

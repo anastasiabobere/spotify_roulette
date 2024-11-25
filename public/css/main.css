@@ -131,6 +131,16 @@ button:hover {
 #home .buttons button {
   margin: 2rem;
 }
+#home .buttons input {
+  width: 100px;
+}
+#home .buttons input:focus {
+  outline: none;
+}
+
+.hidden {
+  opacity: 0;
+}
 
 #room #head {
   display: flex;

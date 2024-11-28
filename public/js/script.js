@@ -1,24 +1,22 @@
 console.log("works");
 document.getElementById("createRoom").addEventListener("click", async () => {
-  try {
-    const response = await fetch("/create-room", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  fetch("/create-room", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        window.location.href = data.roomUrl;
+      } else {
+        console.error("Room creation failed:", data.message);
+        alert(data.message || "Failed to create room. Please try again.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error in fetch:", error);
+      alert("Error connecting to server. Please try again.");
     });
-    const data = await response.json();
-    if (data.success) {
-      alert(`Room created successfully! Roomsss number: ${data.roomNumber}`);
-      window.location.href = `/room.html/${data.roomNumber}`;
-      //DOESNT WORK
-      console.log(`${data.roomNumber}`);
-    } else {
-      alert("Error creating room.");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
 });
 
 document.getElementById("joinRoom").addEventListener("click", async () => {

@@ -44,6 +44,26 @@ app.get("/login", (req, res) => {
       }),
   );
 });
+app.get("/room/:roomNumber", async (req, res) => {
+  const { roomNumber } = req.params;
+
+  try {
+    const [rows] = await db
+      .promise()
+      .query("SELECT * FROM rooms WHERE room_number = ?", [roomNumber]);
+
+    if (rows.length > 0) {
+      // Serve the room.html file
+      res.sendFile(__dirname + "/public/room.html");
+    } else {
+      res.status(404).send("Room not found");
+    }
+  } catch (error) {
+    console.error("Error loading room:", error);
+    res.status(500).send("Server error");
+  }
+});
+
 app
   .use(express.static(path.join(__dirname, "public")))
   .use(cors())
@@ -140,6 +160,7 @@ app.get("/refresh_token", async (req, res) => {
 app.use(express.urlencoded({ extended: true }));
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);
+
 const port = 5500;
 
 app.listen(port, () => {

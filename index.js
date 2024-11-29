@@ -8,7 +8,7 @@ import path from "path";
 import { createRoom } from "./server/createRoom.js";
 import { joinRoom } from "./server/joinRoom.js";
 import { fileURLToPath } from "url";
-
+import { db } from "./server/db.js";
 dotenv.config();
 
 const client_id = process.env.CLIENT_ID;
@@ -44,16 +44,17 @@ app.get("/login", (req, res) => {
       }),
   );
 });
+//ERROR SOLVE LATER
 app.get("/room/:roomNumber", async (req, res) => {
   const { roomNumber } = req.params;
-
   try {
-    const [rows] = await db
-      .promise()
-      .query("SELECT * FROM rooms WHERE room_number = ?", [roomNumber]);
+    const [rows] = await db.query("SELECT * FROM rooms WHERE room_number = ?", [
+      roomNumber,
+    ]);
 
     if (rows.length > 0) {
       // Serve the room.html file
+      //ERROR
       res.sendFile(__dirname + "/public/room.html");
     } else {
       res.status(404).send("Room not found");
@@ -68,6 +69,7 @@ app
   .use(express.static(path.join(__dirname, "public")))
   .use(cors())
   .use(cookieParser());
+
 app.get("/callback", async (req, res) => {
   const code = req.query.code || null;
   const state = req.query.state || null;

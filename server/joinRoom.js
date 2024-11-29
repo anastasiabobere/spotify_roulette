@@ -1,4 +1,4 @@
-import db from "./db.js";
+import { db } from "./db.js";
 const joinRoom = async (req, res) => {
   const { roomNumber } = req.body;
 

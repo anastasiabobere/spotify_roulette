@@ -1,4 +1,3 @@
-console.log("works");
 document.getElementById("createRoom").addEventListener("click", async () => {
   fetch("/create-room", {
     method: "POST",
@@ -34,11 +33,9 @@ document.getElementById("joinRoom").addEventListener("click", async () => {
     const result = await response.json();
 
     if (result.success) {
-      // Redirect to the room or display a success message
       alert("Joined room successfully!");
-      // window.location.href = `/room/${roomNumber}`;
+      window.location.href = data.roomUrl;
     } else {
-      // Display error
       alert(result.message);
     }
   } catch (error) {

@@ -18,6 +18,32 @@ document.getElementById("createRoom").addEventListener("click", async () => {
     });
 });
 
+// document.getElementById("joinRoom").addEventListener("click", async () => {
+//   const roomNumber = document.getElementById("joinRoomInput").value;
+
+//   try {
+//     const response = await fetch("/join-room", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ roomNumber }),
+//     });
+
+//     const result = await response.json();
+
+//     if (result.success) {
+//       alert("Joined room successfully!");
+//       window.location.href = data.roomUrl;
+//     } else {
+//       alert(result.message);
+//     }
+//   } catch (error) {
+//     console.error("Error joining room:", error);
+//     alert("An error occurred. Please try again.");
+//   }
+// });
+
 document.getElementById("joinRoom").addEventListener("click", async () => {
   const roomNumber = document.getElementById("joinRoomInput").value;
 
@@ -30,16 +56,15 @@ document.getElementById("joinRoom").addEventListener("click", async () => {
       body: JSON.stringify({ roomNumber }),
     });
 
-    const result = await response.json();
+    const data = await response.json();
 
-    if (result.success) {
-      alert("Joined room successfully!");
+    if (data.success) {
+      console.log("Successfully joined the room:", data.room);
       window.location.href = data.roomUrl;
     } else {
-      alert(result.message);
+      alert(data.message);
     }
   } catch (error) {
     console.error("Error joining room:", error);
-    alert("An error occurred. Please try again.");
   }
 });

@@ -3,9 +3,9 @@ const joinRoom = async (req, res) => {
   const { roomNumber } = req.body;
 
   try {
-    const [rows] = await db
-      .promise()
-      .query("SELECT * FROM rooms WHERE room_number = ?", [roomNumber]);
+    const [rows] = await db.query("SELECT * FROM rooms WHERE room_number = ?", [
+      roomNumber,
+    ]);
 
     if (rows.length > 0) {
       // Room exists

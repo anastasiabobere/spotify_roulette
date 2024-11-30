@@ -44,7 +44,6 @@ app.get("/login", (req, res) => {
       }),
   );
 });
-//ERROR SOLVE LATER
 app.get("/room/:roomNumber", async (req, res) => {
   const { roomNumber } = req.params;
   try {
@@ -53,8 +52,6 @@ app.get("/room/:roomNumber", async (req, res) => {
     ]);
 
     if (rows.length > 0) {
-      // Serve the room.html file
-      //ERROR
       res.sendFile(__dirname + "/public/room.html");
     } else {
       res.status(404).send("Room not found");
@@ -66,7 +63,7 @@ app.get("/room/:roomNumber", async (req, res) => {
 });
 
 app
-  .use(express.static(path.join(__dirname, "public")))
+  .use(express.static(path.join(__dirname, "/public")))
   .use(cors())
   .use(cookieParser());
 

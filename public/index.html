@@ -9,8 +9,8 @@
     <script
       src="https://kit.fontawesome.com/1995a9df69.js"
       crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="css/bg.css" />
-    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="/css/bg.css" />
+    <link rel="stylesheet" href="/css/main.css" />
     <title>Spotify roulette</title>
   </head>
   <body>
@@ -18,7 +18,7 @@
       <h1>Welcome to Spotify Roulette</h1>
 
       <div class="buttons">
-        <input type="number" id="joinRoomInput" placeholder="Please enter id" />
+        <input type="text" id="joinRoomInput" placeholder="Please enter id" />
 
         <button id="joinRoom" class="btn-blue">Join Room</button>
 
@@ -87,9 +87,9 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-    <script src="server/createRooms.js"></script>
-    <script src="server/joinRooms.js"></script>
-    <script src="js/script.js"></script>
+    <script src="/server/createRooms.js"></script>
+    <script src="/server/joinRooms.js"></script>
+    <script src="/js/script.js"></script>
     <script>
       window.onload = () => {
         const hash = window.location.hash;

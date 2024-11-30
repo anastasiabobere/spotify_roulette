@@ -17,35 +17,10 @@ document.getElementById("createRoom").addEventListener("click", async () => {
       alert("Error connecting to server. Please try again.");
     });
 });
-
-// document.getElementById("joinRoom").addEventListener("click", async () => {
-//   const roomNumber = document.getElementById("joinRoomInput").value;
-
-//   try {
-//     const response = await fetch("/join-room", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ roomNumber }),
-//     });
-
-//     const result = await response.json();
-
-//     if (result.success) {
-//       alert("Joined room successfully!");
-//       window.location.href = data.roomUrl;
-//     } else {
-//       alert(result.message);
-//     }
-//   } catch (error) {
-//     console.error("Error joining room:", error);
-//     alert("An error occurred. Please try again.");
-//   }
-// });
-
 document.getElementById("joinRoom").addEventListener("click", async () => {
   const roomNumber = document.getElementById("joinRoomInput").value;
+  // Fetch the input value
+  console.log("Room Number to join:", roomNumber); // Debugging client-side
 
   try {
     const response = await fetch("/join-room", {
@@ -53,18 +28,18 @@ document.getElementById("joinRoom").addEventListener("click", async () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ roomNumber }),
+      body: JSON.stringify({ roomNumber }), // Send roomNumber as JSON
     });
 
     const data = await response.json();
+    console.log("Server response:", data); // Debugging server response
 
     if (data.success) {
-      console.log("Successfully joined the room:", data.room);
       window.location.href = data.roomUrl;
     } else {
       alert(data.message);
     }
   } catch (error) {
-    console.error("Error joining room:", error);
+    console.error("Error in joinRoom fetch:", error);
   }
 });

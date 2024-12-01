@@ -19,8 +19,8 @@ document.getElementById("createRoom").addEventListener("click", async () => {
 });
 document.getElementById("joinRoom").addEventListener("click", async () => {
   const roomNumber = document.getElementById("joinRoomInput").value;
-  // Fetch the input value
-  console.log("Room Number to join:", roomNumber); // Debugging client-side
+
+  console.log("Room Number to join:", roomNumber);
 
   try {
     const response = await fetch("/join-room", {
@@ -28,12 +28,11 @@ document.getElementById("joinRoom").addEventListener("click", async () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ roomNumber }), // Send roomNumber as JSON
+      body: JSON.stringify({ roomNumber }),
     });
 
     const data = await response.json();
-    console.log("Server response:", data); // Debugging server response
-
+    console.log("Server response:", data);
     if (data.success) {
       window.location.href = data.roomUrl;
     } else {

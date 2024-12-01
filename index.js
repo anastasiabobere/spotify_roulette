@@ -156,6 +156,7 @@ app.get("/refresh_token", async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);

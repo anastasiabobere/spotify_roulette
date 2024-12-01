@@ -82,11 +82,16 @@ app.get("/callback", async (req, res) => {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          Authorization:
+          "Authorization":
             "Basic " +
             Buffer.from(`${client_id}:${client_secret}`).toString("base64"),
         },
-        body: `code=${code}&redirect_uri=${redirect_uri}&grant_type=authorization_code`,
+        body: new URLSearchParams({
+          //ERRORRRR
+          code: code,
+          redirect_uri: redirect_uri,
+          grant_type: "authorization_code",
+        }),
       };
 
       const response = await fetch(

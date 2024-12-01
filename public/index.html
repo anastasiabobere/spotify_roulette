@@ -16,6 +16,16 @@
   <body>
     <section id="home">
       <h1>Welcome to Spotify Roulette</h1>
+      <div>
+        <h1>Welcome, <span id="user-name"></span>!</h1>
+        <img
+          id="profile-pic"
+          src=""
+          alt=""
+          style="display: none; width: 150px; border-radius: 50%" />
+      </div>
+      <h2>Your Top Tracks:</h2>
+      <ul id="top-tracks"></ul>
 
       <div class="buttons">
         <input type="text" id="joinRoomInput" placeholder="Please enter id" />
@@ -23,12 +33,13 @@
         <button id="joinRoom" class="btn-blue">Join Room</button>
 
         <button id="createRoom" class="btn-green">Create Room</button>
-        <button
+        <button id="login-btn" class="btn-blue">Log in with Spotify</button>
+        <!-- <button
           id="login"
           class="btn-blue"
           onclick="window.location.href='/login';">
           <a href="/login">Login with Spotify</a>
-        </button>
+        </button> -->
       </div>
       <div class="bubble-how">
         <h2>How to play?</h2>
@@ -85,32 +96,15 @@
       <span></span>
       <span></span>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-    <script src="/server/createRooms.js"></script>
-    <script src="/server/joinRooms.js"></script>
-    <script src="/js/script.js"></script>
     <script>
-      window.onload = () => {
-        const hash = window.location.hash;
-        if (hash) {
-          const params = new URLSearchParams(hash.substring(1));
-          const accessToken = params.get("access_token");
-          const refreshToken = params.get("refresh_token");
-          const error = params.get("error");
-
-          if (accessToken) {
-            console.log("Access Token:", accessToken);
-            console.log("Refresh Token:", refreshToken);
-            // Store the tokens (e.g., in local storage) and use them to make API calls
-          } else if (error) {
-            console.error("Spotify Error:", error);
-          }
-
-          // Remove the hash from the URL
-          window.location.hash = "";
-        }
+      document.getElementById("login-btn").onclick = () => {
+        window.location.href = "/login";
       };
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script src="server/createRooms.js"></script>
+    <script src="server/joinRooms.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/spotifyLogin.js"></script>
   </body>
 </html>

@@ -11,9 +11,12 @@ import { fileURLToPath } from "url";
 import { db } from "./server/db.js";
 dotenv.config();
 
+const port = 5500;
+
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const redirect_uri = "http://127.0.0.1:5500/index.html";
+// const redirect_uri = "http://127.0.0.1:5500/index.html";
+const redirect_uri = "http://127.0.0.1:5500/callback";
 const stateKey = "spotify_auth_state";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -32,7 +35,7 @@ app.get("/login", (req, res) => {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
 
-  const scope = "user-read-private user-read-email";
+  const scope = " user-top-read user-read-private user-read-email";
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
       querystring.stringify({
@@ -43,23 +46,6 @@ app.get("/login", (req, res) => {
         state: state,
       }),
   );
-});
-app.get("/room/:roomNumber", async (req, res) => {
-  const { roomNumber } = req.params;
-  try {
-    const [rows] = await db.query("SELECT * FROM rooms WHERE room_number = ?", [
-      roomNumber,
-    ]);
-
-    if (rows.length > 0) {
-      res.sendFile(__dirname + "/public/room.html");
-    } else {
-      res.status(404).send("Room not found");
-    }
-  } catch (error) {
-    console.error("Error loading room:", error);
-    res.status(500).send("Server error");
-  }
 });
 
 app
@@ -87,7 +73,6 @@ app.get("/callback", async (req, res) => {
             Buffer.from(`${client_id}:${client_secret}`).toString("base64"),
         },
         body: new URLSearchParams({
-          //ERRORRRR
           code: code,
           redirect_uri: redirect_uri,
           grant_type: "authorization_code",
@@ -113,7 +98,7 @@ app.get("/callback", async (req, res) => {
       const data = await response.json();
       const access_token = data.access_token;
       const refresh_token = data.refresh_token;
-
+      console.log(access_token);
       res.redirect(
         `/#${querystring.stringify({ access_token, refresh_token })}`,
       );
@@ -163,10 +148,25 @@ app.get("/refresh_token", async (req, res) => {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.get("/room/:roomNumber", async (req, res) => {
+  const { roomNumber } = req.params;
+  try {
+    const [rows] = await db.query("SELECT * FROM rooms WHERE room_number = ?", [
+      roomNumber,
+    ]);
+
+    if (rows.length > 0) {
+      res.sendFile(__dirname + "/public/room.html");
+    } else {
+      res.status(404).send("Room not found");
+    }
+  } catch (error) {
+    console.error("Error loading room:", error);
+    res.status(500).send("Server error");
+  }
+});
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);
-
-const port = 5500;
 
 app.listen(port, () => {
   console.log(`Listening on ${port}`);

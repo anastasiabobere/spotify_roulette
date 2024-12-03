@@ -33,8 +33,6 @@ window.onload = async () => {
     } else {
       console.error("No access token found");
     }
-
-    window.location.hash = "";
   } else {
     console.log("No hash present in the URL");
 
@@ -42,6 +40,15 @@ window.onload = async () => {
     if (storedUserData) {
       console.log("Loaded user data from localStorage:", storedUserData);
       updateUserProfileUI(storedUserData);
+      document.getElementById("login-btn").textContent = "Log Out";
+      document
+        .getElementById("login-btn")
+        .addEventListener("click", function () {
+          localStorage.removeItem("userData");
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("topTracks");
+          window.location.reload();
+        });
     } else {
       console.log("No user data found in localStorage");
     }
@@ -52,6 +59,7 @@ window.onload = async () => {
       displayTopTracks(storedTopTracks);
     }
   }
+  window.location.hash = "";
 };
 
 async function fetchAndDisplayTopTracks(accessToken) {

@@ -42,3 +42,14 @@ document.getElementById("joinRoom").addEventListener("click", async () => {
     console.error("Error in joinRoom fetch:", error);
   }
 });
+document.getElementById("show").addEventListener("click", function () {
+  const topTracks = document.getElementById("top-tracks");
+
+  if (topTracks.style.opacity === "1") {
+    topTracks.style.opacity = "0";
+    this.textContent = "Show Top Tracks";
+  } else {
+    topTracks.style.opacity = "1";
+    this.textContent = "Hide Top Tracks";
+  }
+});

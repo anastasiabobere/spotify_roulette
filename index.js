@@ -44,6 +44,7 @@ app.get("/login", (req, res) => {
         scope: scope,
         redirect_uri: redirect_uri,
         state: state,
+        show_dialog: "true",
       }),
   );
 });
@@ -98,7 +99,6 @@ app.get("/callback", async (req, res) => {
       const data = await response.json();
       const access_token = data.access_token;
       const refresh_token = data.refresh_token;
-      console.log(access_token);
       res.redirect(
         `/#${querystring.stringify({ access_token, refresh_token })}`,
       );

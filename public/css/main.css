@@ -137,13 +137,21 @@ button:hover {
 }
 #home .buttons {
   grid-area: btn;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 800px;
   justify-self: center;
 }
 #home .buttons button {
-  margin: 2rem;
+  margin: 0;
 }
 #home .buttons input {
-  width: 100px;
+  width: 150px;
+  height: 50px;
+  border-radius: 30px;
 }
 #home .buttons input:focus {
   outline: none;

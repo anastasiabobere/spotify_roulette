@@ -6,6 +6,7 @@ import fetch from "node-fetch";
 import cors from "cors";
 import path from "path";
 import { createRoom } from "./server/createRoom.js";
+import { getRoomDetails } from "./server/roomdetails.js";
 import { joinRoom } from "./server/joinRoom.js";
 import { fileURLToPath } from "url";
 import { db } from "./server/db.js";
@@ -165,8 +166,10 @@ app.get("/room/:roomNumber", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+app.get("/room/:roomNumber/details", getRoomDetails);
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);
+// app.post("/generateToke", getSpotifyAccessToken);
 
 app.listen(port, () => {
   console.log(`Listening on ${port}`);

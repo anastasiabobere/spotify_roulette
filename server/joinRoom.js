@@ -11,7 +11,6 @@ const joinRoom = async (req, res) => {
   }
 
   try {
-    // Fetch the room data
     const query = "SELECT * FROM rooms WHERE room_number = ?";
     const [rows] = await db.query(query, [roomNumber]);
 
@@ -21,15 +20,12 @@ const joinRoom = async (req, res) => {
         .json({ success: false, message: "Room not found" });
     }
 
-    // Parse current participants
     const room = rows[0];
     let participants = JSON.parse(room.participants || "[]");
 
-    // Check if the user is already a participant
     if (!participants.includes(userID)) {
       participants.push(userID);
 
-      // Update the participants column in the database
       const updateQuery =
         "UPDATE rooms SET participants = ? WHERE room_number = ?";
       await db.query(updateQuery, [JSON.stringify(participants), roomNumber]);

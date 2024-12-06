@@ -3,3 +3,4 @@ node_modules
 .vscode
 MYSQL.session.sql
 db.js
+generateToke.js

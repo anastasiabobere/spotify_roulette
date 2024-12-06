@@ -9,13 +9,19 @@ const createRoom = async (req, res) => {
     }
     return text;
   };
+  const { hostID } = req.body;
 
+  if (!hostID) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Host ID is required" });
+  }
   const roomNumber = generateRandomString(length);
 
   try {
     const [result] = await db.query(
-      "INSERT INTO rooms (room_number) VALUES (?)",
-      [roomNumber],
+      "INSERT INTO rooms (room_number, host) VALUES (?, ?)",
+      [roomNumber, hostID],
     );
 
     if (result.affectedRows === 1) {

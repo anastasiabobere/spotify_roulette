@@ -4,9 +4,12 @@ document.getElementById("createRoom").addEventListener("click", async () => {
   if (!userData) {
     alert("Login to spotify first");
   } else {
+    hostID = userData.id;
+    console.log(userData.id);
     fetch("/create-room", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hostID }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -28,6 +31,7 @@ document.getElementById("joinRoom").addEventListener("click", async () => {
   if (!userData) {
     alert("Login to spotify first");
   } else {
+    const userID = userData.id;
     console.log("Room Number to join:", roomNumber);
 
     try {
@@ -36,7 +40,7 @@ document.getElementById("joinRoom").addEventListener("click", async () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ roomNumber }),
+        body: JSON.stringify({ roomNumber, userID }),
       });
 
       const data = await response.json();

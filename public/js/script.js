@@ -1,45 +1,54 @@
+const userData = JSON.parse(localStorage.getItem("userData"));
+
 document.getElementById("createRoom").addEventListener("click", async () => {
-  fetch("/create-room", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        window.location.href = data.roomUrl;
-      } else {
-        console.error("Room creation failed:", data.message);
-        alert(data.message || "Failed to create room. Please try again.");
-      }
+  if (!userData) {
+    alert("Login to spotify first");
+  } else {
+    fetch("/create-room", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
     })
-    .catch((error) => {
-      console.error("Error in fetch:", error);
-      alert("Error connecting to server. Please try again.");
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          window.location.href = data.roomUrl;
+        } else {
+          console.error("Room creation failed:", data.message);
+          alert(data.message || "Failed to create room. Please try again.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error in fetch:", error);
+        alert("Error connecting to server. Please try again.");
+      });
+  }
 });
 document.getElementById("joinRoom").addEventListener("click", async () => {
   const roomNumber = document.getElementById("joinRoomInput").value;
+  if (!userData) {
+    alert("Login to spotify first");
+  } else {
+    console.log("Room Number to join:", roomNumber);
 
-  console.log("Room Number to join:", roomNumber);
+    try {
+      const response = await fetch("/join-room", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ roomNumber }),
+      });
 
-  try {
-    const response = await fetch("/join-room", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ roomNumber }),
-    });
-
-    const data = await response.json();
-    console.log("Server response:", data);
-    if (data.success) {
-      window.location.href = data.roomUrl;
-    } else {
-      alert(data.message);
+      const data = await response.json();
+      console.log("Server response:", data);
+      if (data.success) {
+        window.location.href = data.roomUrl;
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Error in joinRoom fetch:", error);
     }
-  } catch (error) {
-    console.error("Error in joinRoom fetch:", error);
   }
 });
 document.getElementById("show").addEventListener("click", function () {

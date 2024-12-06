@@ -1,4 +1,5 @@
 window.onload = async () => {
+  // console.log("Access :" + accessToken);
   const hash = window.location.hash;
 
   if (hash) {
@@ -15,6 +16,7 @@ window.onload = async () => {
 
         if (!userResponse.ok) {
           console.log("Access :" + accessToken);
+          console.error("Failed fetch response:", await userResponse.text()); // Log full response text
           throw new Error(
             `Failed to fetch user profile: ${userResponse.statusText}`,
           );
@@ -70,6 +72,7 @@ window.onload = async () => {
       document.cookie =
         "spotify_auth_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       window.location.reload();
+      console.log("Current Access Token:", localStorage.getItem("accessToken"));
     });
   } else {
     loginButton.style.display = "block";

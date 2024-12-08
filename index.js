@@ -158,11 +158,15 @@ app.get("/room/:roomNumber", async (req, res) => {
       "SELECT host_id, participants FROM rooms WHERE room_number = ?",
       [roomNumber],
     );
-    let participants = [];
-    const roomDetails = room[0];
+
     if (room.length === 0) {
       return res.status(404).send("Room not found");
     }
+
+    const roomDetails = room[0];
+    let participants = [];
+
+    // Parsing participants JSON
     try {
       participants = roomDetails.participants
         ? JSON.parse(roomDetails.participants)
@@ -172,10 +176,11 @@ app.get("/room/:roomNumber", async (req, res) => {
       participants = [];
     }
 
-    // No templating engine needed, send static HTML
-    res.sendFile(path.join(__dirname, "/public/room.html"), {
-      hostName,
-      participants: JSON.stringify(participants),
+    // Send static HTML with room data (host_id and participant ids)
+    res.sendFile(path.join(__dirname, "/public/room.html"), () => {
+      // Pass only host_id and participant ids
+      res.locals.host_id = roomDetails.host_id;
+      res.locals.participants = participants;
     });
   } catch (error) {
     console.error("Error loading room:", error);

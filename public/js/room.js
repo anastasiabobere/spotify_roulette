@@ -1,47 +1,39 @@
-const roomNumber = window.location.pathname.split("/")[2];
 document.addEventListener("DOMContentLoaded", async () => {
+  const roomNumber = window.location.pathname.split("/")[2];
   document.getElementById(
     "room-id-display",
   ).textContent = `Room ID: ${roomNumber}`;
 
   try {
-    // Fetch room details from the server
-    const response = await fetch(`/room/${roomNumber}/details`);
+    const response = await fetch(`/room/${roomNumber}`);
+    if (!response.ok) {
+      throw new Error(`Error fetching room details: ${response.statusText}`);
+    }
+
     const data = await response.json();
 
     if (!data.success) {
-      console.error("Failed to fetch room details:", data.message);
-      return;
+      throw new Error(data.message || "Unknown error loading room details");
     }
 
-    const { host, participants } = data;
+    const { host_id, participants } = data;
 
     const playersDiv = document.querySelector(".players");
-    if (!playersDiv) {
-      console.error("Players container not found");
-      return;
-    }
+    playersDiv.innerHTML = "";
 
-    // Add Host to Players List
-    const hostDiv = document.createElement("div");
-    hostDiv.classList.add("player");
-    const hostHeading = document.createElement("h3");
-    hostHeading.textContent = `Host: ${host.display_name || "Unknown Host"}`;
-    hostDiv.appendChild(hostHeading);
-    playersDiv.appendChild(hostDiv);
+    const hostElement = document.createElement("div");
+    hostElement.classList.add("player");
+    hostElement.textContent = host;
+    playersDiv.appendChild(hostElement);
 
-    // Add Participants to Players List
     participants.forEach((participant) => {
-      const participantDiv = document.createElement("div");
-      participantDiv.classList.add("player");
-      const participantHeading = document.createElement("h3");
-      participantHeading.textContent = `Player: ${
-        participant.display_name || "Unknown Player"
-      }`;
-      participantDiv.appendChild(participantHeading);
-      playersDiv.appendChild(participantDiv);
+      const playerElement = document.createElement("div");
+      playerElement.classList.add("player");
+      playerElement.textContent = participant;
+      playersDiv.appendChild(playerElement);
     });
   } catch (error) {
-    console.error("Error loading room details:", error);
+    console.error("Error fetching room details:", error);
+    // Handle error, e.g., display an error message to the user
   }
 });

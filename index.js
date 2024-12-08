@@ -6,6 +6,7 @@ import fetch from "node-fetch";
 import cors from "cors";
 import path from "path";
 import { createRoom } from "./server/createRoom.js";
+import { getSpotifyAccessToken } from "./server/generateToke.js";
 import { getRoomDetails } from "./server/roomdetails.js";
 import { joinRoom } from "./server/joinRoom.js";
 import { fileURLToPath } from "url";
@@ -151,26 +152,49 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.get("/room/:roomNumber", async (req, res) => {
   const { roomNumber } = req.params;
-  try {
-    const [rows] = await db.query("SELECT * FROM rooms WHERE room_number = ?", [
-      roomNumber,
-    ]);
 
-    if (rows.length > 0) {
-      res.sendFile(__dirname + "/public/room.html");
-    } else {
-      res.status(404).send("Room not found");
+  try {
+    const [room] = await db.query(
+      "SELECT host_id, participants FROM rooms WHERE room_number = ?",
+      [roomNumber],
+    );
+    let participants = [];
+    const roomDetails = room[0];
+    if (room.length === 0) {
+      return res.status(404).send("Room not found");
     }
+    try {
+      participants = roomDetails.participants
+        ? JSON.parse(roomDetails.participants)
+        : [];
+    } catch (parseError) {
+      console.error("Error parsing participants JSON:", parseError);
+      participants = [];
+    }
+
+    // No templating engine needed, send static HTML
+    res.sendFile(path.join(__dirname, "/public/room.html"), {
+      hostName,
+      participants: JSON.stringify(participants),
+    });
   } catch (error) {
     console.error("Error loading room:", error);
     res.status(500).send("Server error");
   }
 });
-app.get("/room/:roomNumber/details", getRoomDetails);
+
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);
-// app.post("/generateToke", getSpotifyAccessToken);
 
+app.post("/generateToken", async (req, res) => {
+  try {
+    const token = await getSpotifyAccessToken(); // Call the function
+    res.status(200).json({ success: true, accessToken: token }); // Send token to client
+  } catch (error) {
+    console.error("Error generating Spotify token:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 app.listen(port, () => {
   console.log(`Listening on ${port}`);
 });

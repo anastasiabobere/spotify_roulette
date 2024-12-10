@@ -6,14 +6,14 @@ import fetch from "node-fetch";
 import cors from "cors";
 import path from "path";
 import { createRoom } from "./server/createRoom.js";
-import { getSpotifyAccessToken } from "./server/generateToke.js";
+import { generateSpotifyToken } from "./server/generateToken.js";
 import { joinRoom } from "./server/joinRoom.js";
 import { fileURLToPath } from "url";
 import { db } from "./server/db.js";
+import roomRoutes from "./server/room.js";
 dotenv.config();
 
 const port = 5500;
-
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 // const redirect_uri = "http://127.0.0.1:5500/index.html";
@@ -149,126 +149,7 @@ app.get("/refresh_token", async (req, res) => {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.get("/room/:roomNumber", async (req, res) => {
-  const { roomNumber } = req.params;
-
-  try {
-    const [room] = await db.query(
-      "SELECT host_id, participants FROM rooms WHERE room_number = ?",
-      [roomNumber],
-    );
-
-    if (room.length === 0) {
-      return res.status(404).send("Room not found");
-    }
-
-    const roomDetails = room[0];
-    let participants = [];
-
-    if (typeof roomDetails.participants === "string") {
-      participants = JSON.parse(roomDetails.participants.trim());
-    } else if (Array.isArray(roomDetails.participants)) {
-      participants = roomDetails.participants;
-    }
-
-    res.send(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-         <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="author" content=" Anastasia Bobere" />
-    <meta name="description" content="Spotify Api roulette game" />
-    <meta name="keywords" content="Spotify WEB API Game roulette" />
-    <script
-      src="https://kit.fontawesome.com/1995a9df69.js"
-      crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="/css/bg.css" />
-    <link rel="stylesheet" href="/css/main.css" />
-    <title>Spotify roulette | Room</title>
-      </head>
-      <body>
-      <section id="room">
-      <div id="head">
-        <h1>Welcome to The Room</h1>
-        <div class="bubble-id"><h2 id="room-id-display"></h2></div>
-        <button class="btn-green" onclick="startGame()">Start the Game</button>
-      </div>
-        
-        <div id="room-id-display"></div>
-        <div id="host-id"></div>
-        <h2>Participants:</h2>
-        <ul id="participants-list"></ul>
-</section>
- <div class="background">
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-        <script>
-          // Embed server-side data into the front-end JavaScript
-          const roomData = {
-            host_id: "${roomDetails.host_id}",
-            participants: ${JSON.stringify(participants)}
-          };
-
-          // Extract room number from the URL
-          const roomNumber = window.location.pathname.split("/")[2];
-          document.getElementById("room-id-display").textContent = "Room ID: " + roomNumber;
-
-          // Display host ID
-          const hostIdElement = document.getElementById("host-id");
-          hostIdElement.textContent = "Host ID: " + roomData.host_id;
-
-          // Display participants list
-          const participantsListElement = document.getElementById("participants-list");
-          roomData.participants.forEach((participantId) => {
-            const li = document.createElement("li");
-            li.textContent = participantId;
-            participantsListElement.appendChild(li);
-          });
-        </script>
-         <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-    <script src="/js/room.js"></script>
-    <script src="/server/createRooms.js"></script>
-    <script src="/server/joinRooms.js"></script>
-    <script src="/js/script.js"></script>
-      </body>
-      </html>
-    `);
-  } catch (error) {
-    console.error("Error fetching room details:", error);
-    res.status(500).send("Server error");
-  }
-});
+app.use("/room", roomRoutes);
 
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);

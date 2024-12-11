@@ -39,6 +39,7 @@ window.startGame = async () => {
       alert("Game started!");
     } else {
       alert("Failed to start the game.");
+      console.log("Hallo");
     }
   } catch (error) {
     console.error("Error starting the game:", error);

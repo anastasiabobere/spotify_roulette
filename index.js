@@ -10,7 +10,7 @@ import { generateSpotifyToken } from "./server/generateToken.js";
 import { joinRoom } from "./server/joinRoom.js";
 import { fileURLToPath } from "url";
 import { db } from "./server/db.js";
-import roomRouter from "./server/room.js";
+import roomRouter from "./routes/room.js";
 dotenv.config();
 
 const port = 5500;

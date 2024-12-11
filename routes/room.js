@@ -1,6 +1,6 @@
 import express from "express";
-import { db } from "./db.js";
-import { generateSpotifyToken } from "./generateToken.js";
+import { db } from "../server/db.js";
+import { generateSpotifyToken } from "../server/generateToken.js";
 import fetch from "node-fetch";
 import path from "path";
 

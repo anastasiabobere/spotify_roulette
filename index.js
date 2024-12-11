@@ -10,7 +10,7 @@ import { generateSpotifyToken } from "./server/generateToken.js";
 import { joinRoom } from "./server/joinRoom.js";
 import { fileURLToPath } from "url";
 import { db } from "./server/db.js";
-import roomRoutes from "./server/room.js";
+import roomRouter from "./server/room.js";
 dotenv.config();
 
 const port = 5500;
@@ -149,7 +149,11 @@ app.get("/refresh_token", async (req, res) => {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/room", roomRoutes);
+// app.use("/room", roomRoutes);
+app.use("/api/room", roomRouter);
+app.get("/room/:roomNumber", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "room.html"));
+});
 
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);

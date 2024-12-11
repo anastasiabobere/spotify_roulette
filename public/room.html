@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -18,9 +18,11 @@
       <div id="head">
         <h1>Welcome to The Room</h1>
         <div class="bubble-id"><h2 id="room-id-display"></h2></div>
-        <button class="btn-green" onclick="startGame()">Start the Game</button>
+        <button class="btn-green" onclick="startGame()">
+          Start the Game THIS IS HTML
+        </button>
       </div>
-      <div class="players"></div>
+      <div id="participants" class="players"></div>
     </section>
     <div class="background">
       <span></span>
@@ -57,9 +59,157 @@
     </div>
     <script src="/js/roomFront.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-    <script src="/js/room.js"></script>
     <script src="/server/createRooms.js"></script>
     <script src="/server/joinRooms.js"></script>
+    <script src="/js/script.js"></script>
+  </body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Anastasia Bobere" />
+    <meta name="description" content="Spotify Api roulette game" />
+    <meta name="keywords" content="Spotify WEB API Game roulette" />
+    <script
+      src="https://kit.fontawesome.com/1995a9df69.js"
+      crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/bg.css" />
+    <link rel="stylesheet" href="/css/main.css" />
+    <title>Spotify roulette | Room</title>
+  </head>
+  <body>
+    <section id="room">
+      <div id="head">
+        <h1>Welcome to The Room</h1>
+        <div class="bubble-id"><h2 id="room-id-display"></h2></div>
+        <button class="btn-green" id="start-game-btn">Start the Game</button>
+      </div>
+      <div class="players" id="players-container">
+        <!-- Players will be dynamically inserted here -->
+      </div>
+    </section>
+
+    <div class="background">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script>
+      // Function to get room number from URL
+      function getRoomNumber() {
+        return window.location.pathname.split("/")[2];
+      }
+
+      // Function to add a player to the display
+      function addPlayer(name, isHost = false) {
+        const playerDiv = document.createElement("div");
+        playerDiv.classList.add("player");
+        const playerName = document.createElement("h3");
+        playerName.textContent = name + (isHost ? " (Host)" : "");
+        playerDiv.appendChild(playerName);
+        document.getElementById("players-container").appendChild(playerDiv);
+      }
+
+      // Function to initialize the room
+      async function initializeRoom() {
+        const roomNumber = getRoomNumber();
+        document.getElementById("room-id-display").textContent =
+          "Room ID: " + roomNumber;
+
+        try {
+          const response = await fetch(`/api/room/${roomNumber}`, {
+            headers: {
+              "Accept": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const contentType = response.headers.get("content-type");
+          if (!contentType || !contentType.includes("application/json")) {
+            throw new TypeError("Oops, we haven't gotten JSON!");
+          }
+
+          const data = await response.json();
+          console.log("Received data:", data); // Debug log
+
+          // Add host
+          addPlayer(data.hostName, true);
+
+          // Add participants
+          data.participants.forEach((name) => addPlayer(name));
+
+          // Store room data
+          window.roomData = data.roomData;
+        } catch (error) {
+          console.error("Error initializing room:", error);
+          // Display error to user
+          const playersContainer = document.getElementById("players-container");
+          playersContainer.innerHTML = `<div class="error">Error loading room data: ${error.message}</div>`;
+        }
+      }
+
+      // Function to start the game
+      async function startGame() {
+        const roomNumber = getRoomNumber();
+        try {
+          const response = await fetch(`/api/room/${roomNumber}/start-game`, {
+            method: "POST",
+          });
+
+          if (response.ok) {
+            window.location.href = `/game/${roomNumber}`;
+          } else {
+            console.error("Failed to start game");
+          }
+        } catch (error) {
+          console.error("Error starting game:", error);
+        }
+      }
+
+      // Event listeners
+      document
+        .getElementById("start-game-btn")
+        .addEventListener("click", startGame);
+
+      // Initialize room when page loads
+      document.addEventListener("DOMContentLoaded", initializeRoom);
+    </script>
+    <script src="/js/roomFront.js"></script>
     <script src="/js/script.js"></script>
   </body>
 </html>

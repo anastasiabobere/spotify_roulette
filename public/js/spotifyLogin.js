@@ -26,7 +26,6 @@ window.onload = async () => {
         console.log("User Data:", userData);
 
         localStorage.setItem("userData", JSON.stringify(userData));
-
         updateUserProfileUI(userData);
 
         await fetchAndDisplayTopTracks(accessToken);

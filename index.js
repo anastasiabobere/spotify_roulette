@@ -100,6 +100,45 @@ app.get("/callback", async (req, res) => {
       const data = await response.json();
       const access_token = data.access_token;
       const refresh_token = data.refresh_token;
+      const userResponse = await fetch("https://api.spotify.com/v1/me", {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+
+      if (!userResponse.ok) {
+        throw new Error(
+          `Failed to fetch user profile: ${userResponse.statusText}`,
+        );
+      }
+
+      const userData = await userResponse.json();
+      const timeRange = "long_term"; // Options: "short_term", "medium_term", "long_term"
+      const limit = 2; // Number of tracks to fetch
+      const url = `https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=${limit}`;
+
+      // const responseSongs = await fetch(url, {
+      //   headers: {
+      //     Authorization: `Bearer ${access_token}`,
+      //   },
+      // });
+      // const dataSongs = await response.json();
+      // const songs = dataSongs.items.map((track) => ({
+      //   id: track.id,
+      //   name: track.name,
+      //   artists: track.artists.map((artist) => artist.name).join(", "),
+      // }));
+      // Save user info in the database
+      const [result] = await db.query(
+        "INSERT INTO users (userId, accessToken) VALUES (?, ?)",
+        [userData.id, access_token],
+      );
+
+      if (result.affectedRows > 0) {
+        console.log(
+          `User ${userData.display_name} added/updated successfully.`,
+        );
+      } else {
+        console.warn("No rows were affected while inserting user data.");
+      }
       res.redirect(
         `/#${querystring.stringify({ access_token, refresh_token })}`,
       );

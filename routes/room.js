@@ -18,13 +18,12 @@ const fetchSpotifyNames = async (ids, accessToken) => {
     });
     const data = await response.json();
     names.push(data.display_name || data.name);
+    console.log(names);
   }
   return names;
 };
-
 router.get("/:roomNumber", async (req, res) => {
   const { roomNumber } = req.params;
-
   try {
     const [room] = await db.query(
       "SELECT host_id, participants FROM rooms WHERE room_number = ?",
@@ -47,10 +46,15 @@ router.get("/:roomNumber", async (req, res) => {
     // Generate Spotify access token
     const accessToken = await generateSpotifyToken();
     const spotifyNames = await fetchSpotifyNames(participants, accessToken);
+    const spotifySongs = await fetchTopSongs(participants);
     const hostName = await fetchSpotifyNames(
       [roomDetails.host_id],
       accessToken,
     );
+    // const people = [participants, hostName[0]];
+    // people.forEach((person) => {
+    //   const spotifySongs = fetchTopSongs(person, accessToken);
+    // });
 
     // Set proper headers and send JSON response
     res.setHeader("Content-Type", "application/json");
@@ -59,6 +63,7 @@ router.get("/:roomNumber", async (req, res) => {
         roomNumber,
         hostName: hostName[0],
         participants: spotifyNames,
+        // songs: spotifySongs,
         roomData: {
           host_id: roomDetails.host_id,
           participants: participants,
@@ -85,7 +90,8 @@ router.post("/:roomNumber/start-game", async (req, res) => {
     }
 
     const roomDetails = room[0];
-    const participants = JSON.parse(roomDetails.participants.trim());
+    const participants = JSON.parse(roomDetails.participants);
+    console.log("Hallo1");
     const accessToken = await generateSpotifyToken();
 
     const fetchTopTracks = async (userId) => {

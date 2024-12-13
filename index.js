@@ -54,7 +54,6 @@ app
   .use(express.static(path.join(__dirname, "/public")))
   .use(cors())
   .use(cookieParser());
-
 app.get("/callback", async (req, res) => {
   const code = req.query.code || null;
   const state = req.query.state || null;
@@ -70,7 +69,7 @@ app.get("/callback", async (req, res) => {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          "Authorization":
+          Authorization:
             "Basic " +
             Buffer.from(`${client_id}:${client_secret}`).toString("base64"),
         },
@@ -100,6 +99,8 @@ app.get("/callback", async (req, res) => {
       const data = await response.json();
       const access_token = data.access_token;
       const refresh_token = data.refresh_token;
+
+      // Fetch user profile
       const userResponse = await fetch("https://api.spotify.com/v1/me", {
         headers: { Authorization: `Bearer ${access_token}` },
       });
@@ -111,35 +112,67 @@ app.get("/callback", async (req, res) => {
       }
 
       const userData = await userResponse.json();
+      console.log("User Data:", userData);
+
+      // Fetch user's top tracks
       const timeRange = "long_term"; // Options: "short_term", "medium_term", "long_term"
-      const limit = 2; // Number of tracks to fetch
+      const limit = 20; // Number of tracks to fetch
       const url = `https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=${limit}`;
 
-      // const responseSongs = await fetch(url, {
-      //   headers: {
-      //     Authorization: `Bearer ${access_token}`,
-      //   },
-      // });
-      // const dataSongs = await response.json();
-      // const songs = dataSongs.items.map((track) => ({
-      //   id: track.id,
-      //   name: track.name,
-      //   artists: track.artists.map((artist) => artist.name).join(", "),
-      // }));
-      // Save user info in the database
-      const query = "SELECT * FROM users WHERE userId = ?";
-      const [rows] = await db.query(query, [userData.id]);
+      const [rows] = await db.query("SELECT * FROM users WHERE userId = ?", [
+        userData.id,
+      ]);
+
       if (rows.length === 0) {
-        const [result] = await db.query(
+        const topTracksResponse = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        });
+
+        if (!topTracksResponse.ok) {
+          const errorText = await topTracksResponse.text();
+          console.error("Error fetching top tracks:", errorText);
+          throw new Error(
+            `Top tracks request failed: ${topTracksResponse.status}`,
+          );
+        }
+
+        const topTracksData = await topTracksResponse.json();
+        console.log("User's Top Tracks Data:", topTracksData);
+
+        const songs = topTracksData.items.map((track) => ({
+          id: track.id,
+          name: track.name,
+          artists: track.artists.map((artist) => artist.name).join(", "),
+        }));
+
+        console.log("Mapped Songs:", songs);
+
+        // Insert user into the database
+        const [userInsertResult] = await db.query(
           "INSERT INTO users (userId, accessToken) VALUES (?, ?)",
           [userData.id, access_token],
         );
-        if (result.affectedRows > 0) {
-          console.log(
-            `User ${userData.display_name} added/updated successfully.`,
+
+        console.log("User Insert Result:", userInsertResult);
+
+        // Insert tracks into the database
+        for (const song of songs) {
+          console.log("Processing Song:", song);
+
+          const [existingTracks] = await db.query(
+            "SELECT * FROM tracks WHERE userId = ? AND songId = ?",
+            [userData.id, song.id],
           );
-        } else {
-          console.warn("No rows were affected while inserting user data.");
+
+          if (existingTracks.length === 0) {
+            const [trackInsertResult] = await db.query(
+              "INSERT INTO tracks (userId, name, artists, songId) VALUES (?, ?, ?, ?)",
+              [userData.id, song.name, song.artists, song.id],
+            );
+            console.log("Track Insert Result:", trackInsertResult);
+          }
         }
       }
 
@@ -147,7 +180,7 @@ app.get("/callback", async (req, res) => {
         `/#${querystring.stringify({ access_token, refresh_token })}`,
       );
     } catch (error) {
-      console.error("Error during token exchange:", error);
+      console.error("Error during callback processing:", error);
       res.redirect(`/#${querystring.stringify({ error: error.message })}`);
     }
   }

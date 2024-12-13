@@ -127,18 +127,22 @@ app.get("/callback", async (req, res) => {
       //   artists: track.artists.map((artist) => artist.name).join(", "),
       // }));
       // Save user info in the database
-      const [result] = await db.query(
-        "INSERT INTO users (userId, accessToken) VALUES (?, ?)",
-        [userData.id, access_token],
-      );
-
-      if (result.affectedRows > 0) {
-        console.log(
-          `User ${userData.display_name} added/updated successfully.`,
+      const query = "SELECT * FROM users WHERE userId = ?";
+      const [rows] = await db.query(query, [userData.id]);
+      if (rows.length === 0) {
+        const [result] = await db.query(
+          "INSERT INTO users (userId, accessToken) VALUES (?, ?)",
+          [userData.id, access_token],
         );
-      } else {
-        console.warn("No rows were affected while inserting user data.");
+        if (result.affectedRows > 0) {
+          console.log(
+            `User ${userData.display_name} added/updated successfully.`,
+          );
+        } else {
+          console.warn("No rows were affected while inserting user data.");
+        }
       }
+
       res.redirect(
         `/#${querystring.stringify({ access_token, refresh_token })}`,
       );

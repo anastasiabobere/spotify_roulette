@@ -26,7 +26,7 @@ router.get("/:roomNumber", async (req, res) => {
   const { roomNumber } = req.params;
   try {
     const [room] = await db.query(
-      "SELECT host_id, participants FROM rooms WHERE room_number = ?",
+      "SELECT hosts_id, participants FROM rooms WHERE room_number = ?",
       [roomNumber],
     );
 
@@ -46,9 +46,9 @@ router.get("/:roomNumber", async (req, res) => {
     // Generate Spotify access token
     const accessToken = await generateSpotifyToken();
     const spotifyNames = await fetchSpotifyNames(participants, accessToken);
-    const spotifySongs = await fetchTopSongs(participants);
+    // const spotifySongs = await fetchTopSongs(participants);
     const hostName = await fetchSpotifyNames(
-      [roomDetails.host_id],
+      [roomDetails.hosts_id],
       accessToken,
     );
     // const people = [participants, hostName[0]];
@@ -65,7 +65,7 @@ router.get("/:roomNumber", async (req, res) => {
         participants: spotifyNames,
         // songs: spotifySongs,
         roomData: {
-          host_id: roomDetails.host_id,
+          hosts_id: roomDetails.hosts_id,
           participants: participants,
         },
       }),
@@ -81,7 +81,7 @@ router.post("/:roomNumber/start-game", async (req, res) => {
 
   try {
     const [room] = await db.query(
-      "SELECT host_id, participants FROM rooms WHERE room_number = ?",
+      "SELECT hosts_id, participants FROM rooms WHERE room_number = ?",
       [roomNumber],
     );
 
@@ -109,7 +109,7 @@ router.post("/:roomNumber/start-game", async (req, res) => {
         artist_name: track.artists.map((artist) => artist.name).join(", "),
       }));
     };
-
+    //doesnt work probably delete
     for (const playerId of participants) {
       const tracks = await fetchTopTracks(playerId);
 

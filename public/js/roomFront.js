@@ -7,12 +7,12 @@ window.addEventListener("DOMContentLoaded", async () => {
     const response = await fetch(`/room/${roomNumber}`);
     if (!response.ok) throw new Error("Failed to fetch room data");
 
-    const { host_id, participants, spotifyNames } = await response.json();
+    const { hosts_id, participants, spotifyNames } = await response.json();
 
     // Display host
     const hostDiv = document.createElement("div");
     hostDiv.classList.add("player");
-    hostDiv.innerHTML = `<h3>${host_id} (Host)</h3>`;
+    hostDiv.innerHTML = `<h3>${hosts_id} (Host)</h3>`;
     participantsListElement.appendChild(hostDiv);
 
     // Display participants

@@ -20,7 +20,7 @@ const createRoom = async (req, res) => {
 
   try {
     const [result] = await db.query(
-      "INSERT INTO rooms (room_number, host_id) VALUES (?, ?)",
+      "INSERT INTO rooms (room_number, hosts_id) VALUES (?, ?)",
       [roomNumber, hostID],
     );
 

@@ -1,6 +1,5 @@
+# saved
 node_modules
 .env
-.vscode
-MYSQL.session.sql
 db.js
-generateToke.js
+Local instance MySQL80.session.sql

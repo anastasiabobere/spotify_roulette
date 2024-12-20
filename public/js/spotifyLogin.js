@@ -1,5 +1,4 @@
 window.onload = async () => {
-  // console.log("Access :" + accessToken);
   const hash = window.location.hash;
 
   if (hash) {

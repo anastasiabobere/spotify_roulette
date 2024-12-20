@@ -27,7 +27,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// Start the game
+// Start the game doesnt work
 window.startGame = async () => {
   const roomNumber = window.location.pathname.split("/")[2];
   try {

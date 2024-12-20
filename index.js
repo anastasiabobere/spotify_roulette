@@ -225,7 +225,6 @@ app.get("/refresh_token", async (req, res) => {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use("/room", roomRoutes);
 app.use("/api/room", roomRouter);
 app.get("/room/:roomNumber", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "room.html"));

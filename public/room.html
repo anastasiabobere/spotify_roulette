@@ -104,6 +104,11 @@
           data.participants.forEach((name) => addPlayer(name));
 
           window.roomData = data.roomData;
+          const userDataLocal = JSON.parse(localStorage.getItem("userData"));
+          if (userDataLocal.id === roomData.hosts_id) {
+          } else {
+            document.getElementById("start-game-btn").style.opacity = 0;
+          }
         } catch (error) {
           console.error("Error initializing room:", error);
           const playersContainer = document.getElementById("players-container");
@@ -113,13 +118,16 @@
 
       async function startGame() {
         const roomNumber = getRoomNumber();
+        console.log(roomNumber);
         try {
           const response = await fetch(`/api/room/${roomNumber}/start-game`, {
             method: "POST",
           });
 
           if (response.ok) {
-            window.location.href = `/game/${roomNumber}`;
+            // window.location.href = `/game/${roomNumber}`;
+            console.log(response);
+            console.log("hello");
           } else {
             console.error("Failed to start game");
           }
@@ -133,7 +141,6 @@
         .getElementById("start-game-btn")
         .addEventListener("click", startGame);
 
-      // Initialize room when page loads
       document.addEventListener("DOMContentLoaded", initializeRoom);
     </script>
     <script src="/js/roomFront.js"></script>

@@ -120,19 +120,27 @@
         const roomNumber = getRoomNumber();
         console.log(roomNumber);
         try {
-          const response = await fetch(`/api/room/${roomNumber}/start-game`, {
+          const response = await fetch("/start-game", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ roomNumber }),
           });
 
-          if (response.ok) {
-            // window.location.href = `/game/${roomNumber}`;
-            console.log(response);
-            console.log("hello");
-          } else {
-            console.error("Failed to start game");
+          if (!response.ok) {
+            const errorData = await response.json();
+            alert(`Error: ${errorData.error}`);
+            return;
+          }
+
+          const data = await response.json();
+
+          if (data.success && data.redirectUrl) {
+            // Redirect to the game page
+            window.location.href = data.redirectUrl;
           }
         } catch (error) {
-          console.error("Error starting game:", error);
+          console.error("Error starting the game:", error);
+          alert("Failed to start the game. Please try again.");
         }
       }
 

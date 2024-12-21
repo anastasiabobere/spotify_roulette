@@ -230,6 +230,47 @@ app.get("/room/:roomNumber", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "room.html"));
 });
 
+app.post("/start-game", async (req, res) => {
+  try {
+    const { roomNumber } = req.body;
+
+    // Fetch room details from the database
+    const [roomRows] = await db.query(
+      "SELECT hosts_id, participants FROM rooms WHERE room_number = ?",
+      [roomNumber],
+    );
+
+    if (roomRows.length === 0) {
+      return res.status(404).json({ error: "Room not found" });
+    }
+
+    const { hosts_id, participants } = roomRows[0];
+
+    console.log(participants);
+
+    if (!participants.includes(hosts_id)) {
+      participants.push(hosts_id);
+    }
+    console.log("Host ID:", hosts_id, "Room Number:", roomNumber);
+    // Update the participants list in the database
+    await db.query("UPDATE rooms SET participants = ? WHERE room_number = ?", [
+      JSON.stringify(participants),
+      roomNumber,
+    ]);
+
+    // Respond with success and redirect URL
+    res.status(200).json({
+      success: true,
+      redirectUrl: `/game.html`,
+      participants,
+    });
+  } catch (error) {
+    console.error("Error starting game:", error);
+
+    res.status(500).json({ error: "Failed to start game" });
+  }
+});
+
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);
 

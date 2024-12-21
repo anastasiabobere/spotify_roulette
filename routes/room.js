@@ -68,18 +68,6 @@ router.get("/:roomNumber", async (req, res) => {
   }
 });
 
-router.post("/:roomNumber/start-game", async (req, res) => {
-  const { roomNumber } = req.params;
-
-  try {
-    // cant think how to make it work :(
-    res.status(200).send("Game started successfully.");
-  } catch (error) {
-    console.error("Error starting the game:", error);
-    res.status(500).send("Server error hallo");
-  }
-});
-
 router.get("/:roomNumber/game-data", async (req, res) => {
   const { roomNumber } = req.params;
 

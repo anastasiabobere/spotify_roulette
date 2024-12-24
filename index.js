@@ -13,6 +13,7 @@ import { db } from "./server/db.js";
 import roomRouter from "./routes/room.js";
 import { startGame } from "./routes/startGame.js";
 import { gameStatus } from "./routes/gameStatus.js";
+// import { game } from "./routes/game.js";
 dotenv.config();
 
 const port = 5500;
@@ -117,8 +118,8 @@ app.get("/callback", async (req, res) => {
       console.log("User Data:", userData);
 
       // Fetch user's top tracks
-      const timeRange = "long_term"; // Options: "short_term", "medium_term", "long_term"
-      const limit = 20; // Number of tracks to fetch
+      const timeRange = "medium_term"; // Options: "short_term", "medium_term", "long_term"
+      const limit = 10; // Number of tracks to fetch
       const url = `https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=${limit}`;
 
       const [rows] = await db.query("SELECT * FROM users WHERE userId = ?", [
@@ -231,11 +232,41 @@ app.use("/api/room", roomRouter);
 app.get("/room/:roomNumber", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "room.html"));
 });
+app.get("/fetch-songs/:roomNumber", async (req, res) => {
+  const { roomNumber } = req.params;
+
+  try {
+    const [roomRows] = await db.query(
+      "SELECT participants FROM rooms WHERE room_number = ?",
+      [roomNumber],
+    );
+
+    if (roomRows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Room not found" });
+    }
+
+    const participants = JSON.parse(roomRows[0].participants || "[]");
+
+    const placeholders = participants.map(() => "?").join(",");
+    const [songs] = await db.query(
+      `SELECT name, artists, cover FROM tracks WHERE userId IN (${placeholders}) ORDER BY RAND() LIMIT 10`,
+      participants,
+    );
+
+    res.status(200).json({ success: true, songs, players: participants });
+  } catch (error) {
+    console.error("Error fetching songs:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
 
 app.post("/start-game", startGame);
 app.get("/game-status", gameStatus);
 app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);
+// app.post("/game", game);
 
 app.post("/generateToken", async (req, res) => {
   try {

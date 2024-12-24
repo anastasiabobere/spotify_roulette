@@ -107,6 +107,20 @@ button:hover {
 .bubble-contact:hover {
   border-radius: 71% 29% 45% 55% / 72% 27% 73% 28%;
 }
+
+.player:hover {
+  transform: scale(1.1);
+}
+
+.player.correct {
+  background-color: #4caf50;
+  color: white;
+}
+
+.player.incorrect {
+  background-color: #f44336;
+  color: white;
+}
 #home {
   display: grid;
   grid-template-areas:

@@ -1,10 +1,9 @@
-const userData = JSON.parse(localStorage.getItem("userData"));
-
 document.getElementById("createRoom").addEventListener("click", async () => {
+  const userData = JSON.parse(localStorage.getItem("userData"));
   if (!userData) {
     alert("Login to spotify first");
   } else {
-    hostID = userData.id;
+    const hostID = userData.id;
     console.log(userData.id);
     fetch("/create-room", {
       method: "POST",
@@ -28,6 +27,7 @@ document.getElementById("createRoom").addEventListener("click", async () => {
 });
 document.getElementById("joinRoom").addEventListener("click", async () => {
   const roomNumber = document.getElementById("joinRoomInput").value;
+  const userData = JSON.parse(localStorage.getItem("userData"));
   if (!userData) {
     alert("Login to spotify first");
   } else {

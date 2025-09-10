@@ -52,6 +52,7 @@ const joinRoom = async (req, res) => {
       console.log(
         `User ${userIDString} successfully joined room ${roomNumber}`,
       );
+      console.log("Updated participants array:", participants);
     } else {
       console.log(`User ${userIDString} is already in room ${roomNumber}`);
     }

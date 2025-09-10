@@ -9,7 +9,7 @@ import { createRoom } from "./server/createRoom.js";
 import { generateSpotifyToken } from "./server/generateToken.js";
 import { joinRoom } from "./server/joinRoom.js";
 import { fileURLToPath } from "url";
-import { db } from "./server/db.js";
+import { db, initializeDatabase } from "./server/db.js";
 import roomRouter from "./routes/room.js";
 import { startGame } from "./routes/startGame.js";
 import { gameStatus } from "./routes/gameStatus.js";
@@ -35,6 +35,7 @@ const generateRandomString = (length) => {
 };
 
 const app = express();
+await initializeDatabase();
 app.get("/login", (req, res) => {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
@@ -119,7 +120,7 @@ app.get("/callback", async (req, res) => {
 
       // Fetch user's top tracks
       const timeRange = "medium_term"; // Options: "short_term", "medium_term", "long_term"
-      const limit = 10; // Number of tracks to fetch
+      const limit = 30; // Number of tracks to fetch
       const url = `https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=${limit}`;
 
       const [rows] = await db.query("SELECT * FROM users WHERE userId = ?", [
@@ -148,14 +149,26 @@ app.get("/callback", async (req, res) => {
           id: track.id,
           name: track.name,
           artists: track.artists.map((artist) => artist.name).join(", "),
+          cover:
+            (track.album && track.album.images && track.album.images[0]?.url) ||
+            null,
+          preview_url: track.preview_url || null,
         }));
 
         console.log("Mapped Songs:", songs);
 
         // Insert user into the database
+        const displayName =
+          userData.display_name || userData.name || userData.id;
+        console.log(
+          "Storing user:",
+          userData.id,
+          "with display name:",
+          displayName,
+        );
         const [userInsertResult] = await db.query(
-          "INSERT INTO users (userId, accessToken) VALUES (?, ?)",
-          [userData.id, access_token],
+          "INSERT INTO users (userId, accessToken, displayName) VALUES (?, ?, ?)",
+          [userData.id, access_token, displayName],
         );
 
         console.log("User Insert Result:", userInsertResult);
@@ -171,8 +184,15 @@ app.get("/callback", async (req, res) => {
 
           if (existingTracks.length === 0) {
             const [trackInsertResult] = await db.query(
-              "INSERT INTO tracks (userId, name, artists, songId) VALUES (?, ?, ?, ?)",
-              [userData.id, song.name, song.artists, song.id],
+              "INSERT INTO tracks (userId, name, artists, songId, cover, preview_url) VALUES (?, ?, ?, ?, ?, ?)",
+              [
+                userData.id,
+                song.name,
+                song.artists,
+                song.id,
+                song.cover,
+                song.preview_url,
+              ],
             );
             console.log("Track Insert Result:", trackInsertResult);
           }
@@ -232,6 +252,11 @@ app.use("/api/room", roomRouter);
 app.get("/room/:roomNumber", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "room.html"));
 });
+
+// Serve game page with room number in path
+app.get("/game/:roomNumber", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "game.html"));
+});
 app.get("/fetch-songs/:roomNumber", async (req, res) => {
   const { roomNumber } = req.params;
 
@@ -251,7 +276,7 @@ app.get("/fetch-songs/:roomNumber", async (req, res) => {
 
     const placeholders = participants.map(() => "?").join(",");
     const [songs] = await db.query(
-      `SELECT name, artists, cover FROM tracks WHERE userId IN (${placeholders}) ORDER BY RAND() LIMIT 10`,
+      `SELECT name, artists, COALESCE(cover, '') as cover FROM tracks WHERE userId IN (${placeholders}) ORDER BY RAND() LIMIT 10`,
       participants,
     );
 
@@ -268,9 +293,183 @@ app.post("/create-room", createRoom);
 app.post("/join-room", joinRoom);
 // app.post("/game", game);
 
+// -------- Game APIs ---------
+// Initialize or read game state
+app.get("/api/game/state/:roomNumber", async (req, res) => {
+  const { roomNumber } = req.params;
+  try {
+    const [roomRows] = await db.query(
+      "SELECT participants FROM rooms WHERE room_number = ?",
+      [roomNumber],
+    );
+    if (roomRows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Room not found" });
+    }
+
+    // Ensure there is a session
+    const [sessionRows] = await db.query(
+      "SELECT songs, current_index, total FROM game_sessions WHERE room_number = ?",
+      [roomNumber],
+    );
+
+    let session = sessionRows[0];
+    if (!session) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Game not started yet" });
+    }
+
+    let songs = [];
+    try {
+      if (typeof session.songs === "string") {
+        songs = JSON.parse(session.songs);
+      } else if (Array.isArray(session.songs)) {
+        songs = session.songs;
+      }
+    } catch (err) {
+      console.error("Error parsing songs:", err);
+      songs = [];
+    }
+    const currentIndex = session.current_index || 0;
+    const total = session.total || 10;
+    const current = songs[currentIndex] || null;
+
+    res.json({ success: true, currentIndex, total, current });
+  } catch (err) {
+    console.error("Error getting game state:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Submit a guess
+app.post("/api/game/guess", async (req, res) => {
+  try {
+    const { roomNumber, userId, guessedUserId } = req.body;
+    if (!roomNumber || !userId || !guessedUserId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing fields" });
+    }
+
+    const [sessionRows] = await db.query(
+      "SELECT songs, current_index, total FROM game_sessions WHERE room_number = ?",
+      [roomNumber],
+    );
+    if (!sessionRows.length) {
+      return res.status(404).json({ success: false, message: "No session" });
+    }
+    const session = sessionRows[0];
+    let songs = [];
+    try {
+      if (typeof session.songs === "string") {
+        songs = JSON.parse(session.songs);
+      } else if (Array.isArray(session.songs)) {
+        songs = session.songs;
+      }
+    } catch (err) {
+      console.error("Error parsing songs in guess:", err);
+      songs = [];
+    }
+    const currentIndex = session.current_index || 0;
+    const current = songs[currentIndex];
+    if (!current) {
+      return res.json({ success: true, correct: false, finished: true });
+    }
+
+    const correctUserId = current.ownerId?.toString();
+    const isCorrect =
+      correctUserId && guessedUserId?.toString() === correctUserId;
+
+    if (isCorrect) {
+      // Give points to the person who made the correct guess
+      await db.query(
+        "UPDATE game_scores SET score = score + 1 WHERE room_number = ? AND user_id = ?",
+        [roomNumber, userId],
+      );
+    }
+
+    res.json({ success: true, correct: isCorrect, finished: false });
+  } catch (err) {
+    console.error("Error submitting guess:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Advance to next song (host should call)
+app.post("/api/game/next", async (req, res) => {
+  try {
+    const { roomNumber } = req.body;
+    const [sessionRows] = await db.query(
+      "SELECT songs, current_index, total FROM game_sessions WHERE room_number = ?",
+      [roomNumber],
+    );
+    if (!sessionRows.length) {
+      return res.status(404).json({ success: false, message: "No session" });
+    }
+    const { current_index, total, songs } = sessionRows[0];
+    let list = [];
+    try {
+      if (typeof songs === "string") {
+        list = JSON.parse(songs);
+      } else if (Array.isArray(songs)) {
+        list = songs;
+      }
+    } catch (err) {
+      console.error("Error parsing songs in next:", err);
+      list = [];
+    }
+    const nextIndex = current_index + 1;
+    const finished = nextIndex >= Math.min(total, list.length);
+    if (!finished) {
+      await db.query(
+        "UPDATE game_sessions SET current_index = ? WHERE room_number = ?",
+        [nextIndex, roomNumber],
+      );
+    }
+    res.json({ success: true, finished });
+  } catch (err) {
+    console.error("Error advancing song:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Leaderboard
+app.get("/api/game/leaderboard/:roomNumber", async (req, res) => {
+  const { roomNumber } = req.params;
+  try {
+    const [rows] = await db.query(
+      "SELECT user_id, score FROM game_scores WHERE room_number = ? ORDER BY score DESC",
+      [roomNumber],
+    );
+    res.json({ success: true, leaderboard: rows });
+  } catch (err) {
+    console.error("Error getting leaderboard:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Restart game
+app.post("/api/game/restart", async (req, res) => {
+  try {
+    const { roomNumber } = req.body;
+    await db.query("DELETE FROM game_sessions WHERE room_number = ?", [
+      roomNumber,
+    ]);
+    await db.query("UPDATE game_scores SET score = 0 WHERE room_number = ?", [
+      roomNumber,
+    ]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error restarting game:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 app.post("/generateToken", async (req, res) => {
   try {
-    const token = await getSpotifyAccessToken(); // Call the function
+    const token = await generateSpotifyToken();
     res.status(200).json({ success: true, accessToken: token }); // Send token to client
   } catch (error) {
     console.error("Error generating Spotify token:", error);

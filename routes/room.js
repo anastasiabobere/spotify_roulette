@@ -6,22 +6,42 @@ import path from "path";
 
 const router = express.Router();
 
-// Fetch Spotify user names by ID
 const fetchSpotifyNames = async (ids, accessToken) => {
   const names = [];
   for (const id of ids) {
-    const url = `https://api.spotify.com/v1/users/${id}`;
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const data = await response.json();
-    names.push(data.display_name || data.name);
-    console.log(names);
+    try {
+      const url = `https://api.spotify.com/v1/users/${id}`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error(`Failed to fetch user ${id}:`, response.status);
+        names.push(id);
+        continue;
+      }
+
+      const data = await response.json();
+      const displayName = data.display_name || data.name || id;
+
+      // Save/update in DB
+      await db.query(
+        `INSERT INTO users (userId, displayName) VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE displayName = VALUES(displayName)`,
+        [id, displayName],
+      );
+
+      names.push(displayName);
+    } catch (err) {
+      console.error(`Error fetching Spotify user ${id}:`, err.message);
+      names.push(id);
+    }
   }
   return names;
 };
+
 router.get("/:roomNumber", async (req, res) => {
   const { roomNumber } = req.params;
   try {
@@ -37,28 +57,36 @@ router.get("/:roomNumber", async (req, res) => {
     const roomDetails = room[0];
     let participants = [];
 
-    if (typeof roomDetails.participants === "string") {
-      participants = JSON.parse(roomDetails.participants.trim());
-    } else if (Array.isArray(roomDetails.participants)) {
-      participants = roomDetails.participants;
+    try {
+      if (
+        roomDetails.participants &&
+        typeof roomDetails.participants === "string"
+      ) {
+        participants = JSON.parse(roomDetails.participants.trim());
+      } else if (Array.isArray(roomDetails.participants)) {
+        participants = roomDetails.participants;
+      }
+    } catch {
+      participants = [];
     }
 
-    // Generate Spotify access token
     const accessToken = await generateSpotifyToken();
-    const spotifyNames = await fetchSpotifyNames(participants, accessToken);
-    const hostName = await fetchSpotifyNames(
+    const participantNames = await fetchSpotifyNames(participants, accessToken);
+    const hostNameArr = await fetchSpotifyNames(
       [roomDetails.hosts_id],
       accessToken,
     );
+    const hostName = hostNameArr[0];
+
     res.setHeader("Content-Type", "application/json");
     res.send(
       JSON.stringify({
         roomNumber,
-        hostName: hostName[0],
-        participants: spotifyNames,
+        hostName,
+        participants: participantNames,
         roomData: {
           hosts_id: roomDetails.hosts_id,
-          participants: participants,
+          participants,
         },
       }),
     );
@@ -83,5 +111,5 @@ router.get("/:roomNumber/game-data", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
+export { fetchSpotifyNames };
 export default router;

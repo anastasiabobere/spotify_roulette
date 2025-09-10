@@ -9,22 +9,37 @@
     <script
       src="https://kit.fontawesome.com/1995a9df69.js"
       crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="css/bg.css" />
-    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="/css/bg.css" />
+    <link rel="stylesheet" href="/css/main.css" />
     <title>Spotify roulette | Game in process</title>
   </head>
   <body>
     <section id="game">
       <div class="songs">
         <div id="song">
-          <img id="song-image" src="" alt="Song Cover" />
+          <img id="song-image" src="img/default-cover.jpg" alt="Song Cover" />
           <h2 id="song-title">Guess the Song</h2>
           <h3 id="song-artist">Artist</h3>
         </div>
       </div>
 
+      <div class="game-info">
+        <div id="score-display">
+          <h3>Your Score: <span id="current-score">0</span></h3>
+        </div>
+        <div id="round-info">
+          <h3>Round <span id="current-round">1</span> of 10</h3>
+        </div>
+      </div>
+
       <div class="players">
         <!-- Players will be dynamically rendered here -->
+      </div>
+
+      <div style="text-align: center; margin-top: 16px">
+        <button id="next-btn" class="btn-green" style="display: none">
+          Next
+        </button>
       </div>
     </section>
 

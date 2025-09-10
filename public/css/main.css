@@ -237,6 +237,15 @@ button:hover {
   width: 250px;
   height: 250px;
 }
+#game .game-info {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 2rem;
+}
+#game .game-info h3 {
+  margin: 0.5rem 0;
+  font-size: 1.2rem;
+}
 
 #end {
   display: flex;

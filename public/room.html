@@ -149,10 +149,28 @@
         .getElementById("start-game-btn")
         .addEventListener("click", startGame);
 
-      document.addEventListener("DOMContentLoaded", initializeRoom);
+      // Poll for game status to redirect all players when game starts
+      function pollGameStatus() {
+        setInterval(async () => {
+          try {
+            const response = await fetch(
+              `/game-status?roomNumber=${getRoomNumber()}`,
+            );
+            const data = await response.json();
+            if (data.success && data.gameStarted) {
+              window.location.href = `/game/${getRoomNumber()}`;
+            }
+          } catch (error) {
+            console.error("Error checking game status:", error);
+          }
+        }, 2000); // Check every 2 seconds
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        initializeRoom();
+        pollGameStatus();
+      });
     </script>
-    <script src="/js/host.js"></script>
-    <script src="/js/room.js"></script>
     <script src="/js/script.js"></script>
   </body>
 </html>

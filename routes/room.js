@@ -57,26 +57,29 @@ router.get("/:roomNumber", async (req, res) => {
     const roomDetails = room[0];
     let participants = [];
 
-    try {
-      if (
-        roomDetails.participants &&
-        typeof roomDetails.participants === "string"
-      ) {
-        participants = JSON.parse(roomDetails.participants.trim());
-      } else if (Array.isArray(roomDetails.participants)) {
-        participants = roomDetails.participants;
-      }
-    } catch {
+    // participants is already parsed by MySQL as an object/array
+    participants = roomDetails.participants || [];
+    if (!Array.isArray(participants)) {
       participants = [];
     }
 
+    // Include host in participants list for name fetching
+    const allParticipants = [...participants];
+    if (
+      roomDetails.hosts_id &&
+      !allParticipants.includes(roomDetails.hosts_id)
+    ) {
+      allParticipants.push(roomDetails.hosts_id);
+    }
+
     const accessToken = await generateSpotifyToken();
-    const participantNames = await fetchSpotifyNames(participants, accessToken);
-    const hostNameArr = await fetchSpotifyNames(
-      [roomDetails.hosts_id],
+    const participantNames = await fetchSpotifyNames(
+      allParticipants,
       accessToken,
     );
-    const hostName = hostNameArr[0];
+    const hostName =
+      participantNames[allParticipants.indexOf(roomDetails.hosts_id)] ||
+      roomDetails.hosts_id;
 
     res.setHeader("Content-Type", "application/json");
     res.send(
@@ -86,7 +89,7 @@ router.get("/:roomNumber", async (req, res) => {
         participants: participantNames,
         roomData: {
           hosts_id: roomDetails.hosts_id,
-          participants,
+          participants: allParticipants,
         },
       }),
     );

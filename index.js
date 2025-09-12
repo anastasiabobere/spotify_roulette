@@ -298,42 +298,30 @@ app.post("/join-room", joinRoom);
 app.get("/api/game/state/:roomNumber", async (req, res) => {
   const { roomNumber } = req.params;
   try {
-    const [roomRows] = await db.query(
-      "SELECT participants FROM rooms WHERE room_number = ?",
-      [roomNumber],
-    );
-    if (roomRows.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Room not found" });
-    }
-
-    // Ensure there is a session
     const [sessionRows] = await db.query(
       "SELECT songs, current_index, total FROM game_sessions WHERE room_number = ?",
       [roomNumber],
     );
-
-    let session = sessionRows[0];
-    if (!session) {
+    if (!sessionRows.length) {
       return res
         .status(404)
         .json({ success: false, message: "Game not started yet" });
     }
 
+    const session = sessionRows[0];
     let songs = [];
     try {
-      if (typeof session.songs === "string") {
-        songs = JSON.parse(session.songs);
-      } else if (Array.isArray(session.songs)) {
-        songs = session.songs;
-      }
+      songs =
+        typeof session.songs === "string"
+          ? JSON.parse(session.songs)
+          : session.songs || [];
     } catch (err) {
       console.error("Error parsing songs:", err);
       songs = [];
     }
+
     const currentIndex = session.current_index || 0;
-    const total = session.total || 10;
+    const total = session.total || songs.length;
     const current = songs[currentIndex] || null;
 
     res.json({ success: true, currentIndex, total, current });
@@ -343,7 +331,7 @@ app.get("/api/game/state/:roomNumber", async (req, res) => {
   }
 });
 
-// Submit a guess
+// POST submit a guess
 app.post("/api/game/guess", async (req, res) => {
   try {
     const { roomNumber, userId, guessedUserId } = req.body;
@@ -354,39 +342,63 @@ app.post("/api/game/guess", async (req, res) => {
     }
 
     const [sessionRows] = await db.query(
-      "SELECT songs, current_index, total FROM game_sessions WHERE room_number = ?",
+      "SELECT songs, current_index FROM game_sessions WHERE room_number = ?",
       [roomNumber],
     );
-    if (!sessionRows.length) {
+    if (!sessionRows.length)
       return res.status(404).json({ success: false, message: "No session" });
-    }
+
     const session = sessionRows[0];
     let songs = [];
     try {
-      if (typeof session.songs === "string") {
-        songs = JSON.parse(session.songs);
-      } else if (Array.isArray(session.songs)) {
-        songs = session.songs;
-      }
+      songs =
+        typeof session.songs === "string"
+          ? JSON.parse(session.songs)
+          : session.songs || [];
     } catch (err) {
       console.error("Error parsing songs in guess:", err);
       songs = [];
     }
+
     const currentIndex = session.current_index || 0;
     const current = songs[currentIndex];
-    if (!current) {
+    if (!current)
       return res.json({ success: true, correct: false, finished: true });
-    }
 
     const correctUserId = current.ownerId?.toString();
-    const isCorrect =
-      correctUserId && guessedUserId?.toString() === correctUserId;
+    if (!correctUserId)
+      return res.json({ success: true, correct: false, finished: false });
+
+    // Prevent self-guess
+    if (userId?.toString() === guessedUserId?.toString()) {
+      return res.json({ success: false, message: "You cannot guess yourself" });
+    }
+
+    // If already answered for this round, no further points
+    if (current.answered) {
+      return res.json({
+        success: true,
+        correct: false,
+        finished: false,
+        alreadyAnswered: true,
+      });
+    }
+
+    const isCorrect = guessedUserId?.toString() === correctUserId;
 
     if (isCorrect) {
-      // Give points to the person who made the correct guess
+      // Award point to guesser only (as you requested)
       await db.query(
         "UPDATE game_scores SET score = score + 1 WHERE room_number = ? AND user_id = ?",
         [roomNumber, userId],
+      );
+
+      // mark round answered and persist
+      current.answered = true;
+      songs[currentIndex] = current;
+      await db.query(
+        "UPDATE game_sessions SET songs = ? WHERE room_number = ?",
+        [JSON.stringify(songs), roomNumber],
       );
     }
 
@@ -397,7 +409,7 @@ app.post("/api/game/guess", async (req, res) => {
   }
 });
 
-// Advance to next song (host should call)
+// POST advance to next song (host should call or client auto-calls for host)
 app.post("/api/game/next", async (req, res) => {
   try {
     const { roomNumber } = req.body;
@@ -405,29 +417,33 @@ app.post("/api/game/next", async (req, res) => {
       "SELECT songs, current_index, total FROM game_sessions WHERE room_number = ?",
       [roomNumber],
     );
-    if (!sessionRows.length) {
+    if (!sessionRows.length)
       return res.status(404).json({ success: false, message: "No session" });
-    }
-    const { current_index, total, songs } = sessionRows[0];
+
+    const session = sessionRows[0];
     let list = [];
     try {
-      if (typeof songs === "string") {
-        list = JSON.parse(songs);
-      } else if (Array.isArray(songs)) {
-        list = songs;
-      }
+      list =
+        typeof session.songs === "string"
+          ? JSON.parse(session.songs)
+          : session.songs || [];
     } catch (err) {
       console.error("Error parsing songs in next:", err);
       list = [];
     }
-    const nextIndex = current_index + 1;
-    const finished = nextIndex >= Math.min(total, list.length);
+
+    const currentIndex = session.current_index || 0;
+    const nextIndex = currentIndex + 1;
+    const finished =
+      nextIndex >= Math.min(session.total || list.length, list.length);
+
     if (!finished) {
       await db.query(
         "UPDATE game_sessions SET current_index = ? WHERE room_number = ?",
         [nextIndex, roomNumber],
       );
     }
+
     res.json({ success: true, finished });
   } catch (err) {
     console.error("Error advancing song:", err);

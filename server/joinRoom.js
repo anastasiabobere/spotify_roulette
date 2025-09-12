@@ -25,15 +25,10 @@ const joinRoom = async (req, res) => {
     const room = rows[0];
     let participants;
 
-    try {
-      // Parse participants, default to an empty array if parsing fails
-      participants = room.participants ? JSON.parse(room.participants) : [];
-      if (!Array.isArray(participants)) {
-        console.error("Invalid participants format:", participants);
-        participants = [];
-      }
-    } catch (parseError) {
-      console.error("Failed to parse participants field:", room.participants);
+    // participants is already parsed by MySQL as an object
+    participants = room.participants || [];
+    if (!Array.isArray(participants)) {
+      console.error("Invalid participants format:", participants);
       participants = [];
     }
 
@@ -45,9 +40,11 @@ const joinRoom = async (req, res) => {
       participants.push(userIDString);
 
       // Update the participants field in the database
+      const participantsJson = JSON.stringify(participants);
+      console.log("Storing participants as JSON:", participantsJson);
       const updateQuery =
         "UPDATE rooms SET participants = ? WHERE room_number = ?";
-      await db.query(updateQuery, [JSON.stringify(participants), roomNumber]);
+      await db.query(updateQuery, [participantsJson, roomNumber]);
 
       console.log(
         `User ${userIDString} successfully joined room ${roomNumber}`,

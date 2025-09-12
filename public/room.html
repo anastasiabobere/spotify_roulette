@@ -99,7 +99,7 @@
           const data = await response.json();
           console.log("Received data:", data); // Debug log
 
-          addPlayer(data.hostName, true);
+          // addPlayer(data.hostName, true);
 
           data.participants.forEach((name) => addPlayer(name));
 
